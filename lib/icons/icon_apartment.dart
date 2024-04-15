@@ -24,7 +24,7 @@ class ApartmentIcon extends StatelessWidget {
   Widget build(BuildContext context) {
     return Container(
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Colors.indigo),
-        child: Icon(Icons.add_alarm_outlined, color: Colors.white, size: iConSize,)
+        child: Icon(Icons.apartment, color: Colors.white, size: iConSize,)
     );
 
     //     floatingActionButton: FloatingActionButton(
