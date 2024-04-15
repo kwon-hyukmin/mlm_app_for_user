@@ -2,9 +2,6 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
 void main(){
-  double _BoxSize = 500;
-  // _BoxSize= 500;
-
   runApp(
       const MaterialApp(
         home: Scaffold(
@@ -19,6 +16,7 @@ void main(){
 
 class HomeIcon extends StatelessWidget {
   final double iConSize;
+  /// 아이콘의 크기 값을 변수로 받아와야 할 듯
 
   const HomeIcon({required this.iConSize, super.key});
 
