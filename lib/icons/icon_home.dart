@@ -23,7 +23,7 @@ class HomeIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-      decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Colors.indigo),
+      decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: const Color(0xFF003399)),
       child: Icon(Icons.home, color: Colors.white, size: iConSize,)
     );
 

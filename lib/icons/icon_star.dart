@@ -23,7 +23,7 @@ class StarIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Colors.indigo),
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: const Color(0xFF2E75B6)),
         child: Icon(Icons.star, color: Colors.white, size: iConSize,)
     );
 

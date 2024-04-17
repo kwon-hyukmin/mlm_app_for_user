@@ -23,20 +23,10 @@ class MapPinIcon extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Color(0xFF003399)),
-        child: Stack(
-          children: [
-            Container(
-              alignment: Alignment.center,
-              child: Icon(Icons.pin_drop, color: Colors.white, size: iConSize,)
-            ),
-            Container(
-              alignment: Alignment.center,
-              color: Colors.red/*Color(0xFF003399)*/,
-              width: 10,
-              height: 10,
-            )
-          ]
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Color(0xFF009999)),
+        child: Container(
+          alignment: Alignment.center,
+          child: Icon(Icons.signpost_sharp, color: Colors.white, size: iConSize,)
         )
     );
 
