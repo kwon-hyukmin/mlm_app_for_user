@@ -32,11 +32,17 @@ class SearchComplex_menuIcon extends StatelessWidget {
         decoration: BoxDecoration(borderRadius: BorderRadius.circular(5), color: Color(0xFF3366CC)),
         child: Column(
           children: [
-            Expanded(flex: 3, child: ApartmentIcon(iConSize: iConSize,)),
-            Expanded(flex: 1,child: AutoSizeText(
-              '단지로 찾기', minFontSize: 1,
-              maxFontSize: 100,
-              style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+            Expanded(flex: 4, child: ApartmentIcon(iConSize: iConSize,)),
+            Expanded(
+                flex: 2,
+                child: Container(
+                  alignment: Alignment.center,
+                  child: const AutoSizeText(
+                    '단지로 찾기',
+                    minFontSize: 1,
+                    maxFontSize: 100,
+                    style: TextStyle(color: Colors.white, fontWeight: FontWeight.bold),
+                  ),
             )
             ),
           ],

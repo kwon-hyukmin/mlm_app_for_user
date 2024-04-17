@@ -8,23 +8,23 @@ void main(){
           body: Center(child: SizedBox(
               width: 100,
               height: 100,
-              child: ApartmentIcon(iConSize: 70,))),
+              child: MapIndicatorIcon(iConSize: 70,))),
         ),
       )
   );
 }
 
-class ApartmentIcon extends StatelessWidget {
+class MapIndicatorIcon extends StatelessWidget {
   final double iConSize;
   /// 아이콘의 크기 값을 변수로 받아와야 할 듯
 
-  const ApartmentIcon({required this.iConSize, super.key});
+  const MapIndicatorIcon({required this.iConSize, super.key});
 
   @override
   Widget build(BuildContext context) {
     return Container(
-        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: Color(0xFF3366CC)),
-        child: Icon(Icons.apartment, color: Colors.white, size: iConSize,)
+        decoration: BoxDecoration(borderRadius: BorderRadius.circular(0), color: const Color(0xFF003399)),
+        child: Icon(Icons.location_on_sharp, color: Colors.white, size: iConSize,)
     );
 
     //     floatingActionButton: FloatingActionButton(
@@ -33,5 +33,3 @@ class ApartmentIcon extends StatelessWidget {
     //   child: const Icon(Icons.add),
   }
 }
-
-
