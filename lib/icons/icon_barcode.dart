@@ -3,13 +3,13 @@ import 'package:flutter/material.dart';
 void main() {
   runApp(MaterialApp(
     home: Scaffold(
-      body: Center(child: AddIcon()),
+      body: Center(child: BarcodeIcon()),
     ),
   ));
 }
 
-class AddIcon extends StatelessWidget {
-  const AddIcon({super.key});
+class BarcodeIcon extends StatelessWidget {
+  const BarcodeIcon({super.key});
 
   @override
   Widget build(BuildContext context) {

@@ -10,15 +10,18 @@ class IconCircleContainer extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-        decoration: BoxDecoration(
-            borderRadius: BorderRadius.circular(100), color: outerColor),
-        child: LayoutBuilder(
-          builder: (context, constraints) => Icon(
-            icon,
-            color: innerColor,
-            size: constraints.biggest.height,
-          ),
-        ));
+    return LayoutBuilder(
+        builder: (context, constraints) => Container(
+          padding: EdgeInsets.symmetric(vertical: (constraints.biggest.height)/6, horizontal: (constraints.biggest.height)/6),
+          decoration: BoxDecoration(
+              borderRadius: BorderRadius.circular(100), color: outerColor),
+          child: LayoutBuilder(
+            builder: (context, constraints) => Icon(
+              icon,
+              color: innerColor,
+              size: constraints.biggest.height,
+            ),
+          )),
+    );
   }
 }
