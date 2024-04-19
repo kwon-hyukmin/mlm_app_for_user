@@ -19,7 +19,7 @@ class AddIcon extends StatelessWidget {
       padding: EdgeInsets.all(6.0),
       decoration: BoxDecoration(
           borderRadius: BorderRadius.circular(25), color: Colors.indigo),
-      child: Image.asset('assets/images/barcode.png'),
+      child: Image.asset('assets/icons/barcode.png'),
     );
 
     //     floatingActionButton: FloatingActionButton(
