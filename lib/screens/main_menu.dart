@@ -55,6 +55,14 @@ class MenuArea extends StatelessWidget {
                       Expanded(child: Text('')), //Expanded(child: Placeholder()),
                       TextButton(onPressed: () { print('마이페이지'); }, child: Text('마이페이지', style: TextStyle( color: Colors.black),   )),
                       TextButton(onPressed: () { print('로그아웃'); }, child: Text('로그아웃' ,  style: TextStyle( color: Colors.black),  )),
+                      // InkWell(
+                      //   onTap: () {print('마이페이지');},
+                      //   child: Text('마이페이지', style: TextStyle( color: Colors.black),   )
+                      // ),
+                      // InkWell(
+                      //     onTap: () {print('로그아웃');},
+                      //   child: Text('로그아웃' ,  style: TextStyle( color: Colors.black),  )
+                      // ),
                     ],
                   )
               ),
