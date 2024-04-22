@@ -1,6 +1,9 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
+import 'package:flutter/foundation.dart';
+import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/widgets.dart';
 import 'package:mlm_app_for_user/icons/common_icon_container.dart';
 
 void main() {
@@ -23,20 +26,115 @@ void main() {
                        "deliveryCoo" : 'CJ대한통은',
                        "address" : "e편한세상 부평그랑힐스",
                        "detailAddress" : '104동 101호',
+                       "boxType" : "극소",
                        "deliveryFee" : 300,
                        "pickupState" : 0
                       },
-                      {"invoiceNo" : "1111-****-***-1234",
+                      {"invoiceNo" : "1111-****-***-1235",
                         "deliveryCoo" : 'CJ대한통은',
                         "address" : "Xi 그랜드써밋",
                         "detailAddress" : '101동 101호',
+                        "boxType" : "극소",
                         "deliveryFee" : 500,
+                        "pickupState" : 1
+                      },
+                      {"invoiceNo" : "1111-****-***-1236",
+                        "deliveryCoo" : 'CJ대한통은',
+                        "address" : "e편한세상 부평그랑힐스",
+                        "detailAddress" : '101동 102호',
+                        "boxType" : "극대",
+                        "deliveryFee" : 100,
+                        "pickupState" : 1
+                      },
+                      {"invoiceNo" : "1111-****-***-1237",
+                        "deliveryCoo" : 'CJ대한통은',
+                        "address" : "e편한세상 부평그랑힐스",
+                        "detailAddress" : '101동 103호',
+                        "boxType" : "극대",
+                        "deliveryFee" : 400,
                         "pickupState" : 1
                       }]
       ),
     ),
   ));
 }
+
+
+class UserPickup_MapToList {
+  String? invoiceNo;
+  String? deliveryCoo;
+  String? address;
+  String? detailAddress;
+  String? boxType;
+  int? deliveryFee;
+  int? pickupState;
+
+  UserPickup_MapToList(invoiceNo, deliveryCoo, address, detailAddress, boxType, deliveryFee, pickupState){
+    this.invoiceNo = invoiceNo;
+    this.deliveryCoo = deliveryCoo;
+    this.address = address;
+    this.detailAddress = detailAddress;
+    this.boxType = boxType;
+    this.deliveryFee = deliveryFee;
+    this.pickupState = pickupState;
+  }
+
+  UserPickup_MapToList.fromJson(Map<String, dynamic> json)
+      : invoiceNo = json['invoiceNo'],
+        deliveryCoo = json['deliveryCoo'],
+        address = json['address'],
+        detailAddress = json['detailAddress'],
+        boxType = json['boxType'],
+        deliveryFee = json['deliveryFee'],
+        pickupState = json['pickupState'];
+}
+
+
+class PickUpListView extends StatelessWidget {
+  final List<UserPickup_MapToList> convert_pickupList;
+  const PickUpListView({super.key, required this.convert_pickupList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        children: _getInputs()
+    );
+  }
+
+  List<Widget> _getInputs(){
+    List<Widget> textWidgetList = [];
+    convert_pickupList.forEach((element) {
+      textWidgetList.add(
+          Container(
+            height: 150,
+            child: Column(
+              children: [
+                Row(
+                  children: [
+                  AutoSizeText('운송장번호: '),
+                  AutoSizeText(element.invoiceNo!),
+                  ],),
+                Text(element.deliveryCoo!),
+                Text(element.address!),
+                Row(
+                  children: [
+                    AutoSizeText(element.detailAddress!),
+                    AutoSizeText(element.boxType!),
+                    AutoSizeText('${element.deliveryFee!}')
+                  ],),
+                Container(
+                  height: 20,
+                  child: PickStateWidget().stateWidget(element.pickupState)
+                )
+              ]
+            ),
+          )
+      );
+    });
+    return textWidgetList;
+  }
+}
+
 
 class UserPickUp extends StatefulWidget {
   final String pickPointAdd;
@@ -68,7 +166,8 @@ class UserPickUp extends StatefulWidget {
 
 class _UserPickUpState extends State<UserPickUp> {
   late int _leftCount;
-
+  late List<Map<String, dynamic>> _pickupListMap;
+  List<UserPickup_MapToList> userPickup_MapToList = [];
   // late int _pickupState;
 
   @override
@@ -76,8 +175,16 @@ class _UserPickUpState extends State<UserPickUp> {
     // TODO: implement initState
     super.initState();
     _leftCount = widget.leftCount;
-    print(widget.pickupList[0]);
-    print(widget.pickupList[1]);
+    _pickupListMap = widget.pickupList;
+
+
+    _pickupListMap.forEach((element) {
+      userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
+    });
+
+    // PickUpListView(_pickupListMap)._getInputs();
+    // print(widget.pickupList[0]);
+    // print(widget.pickupList[1]);
     // _pickupState = widget.pickupList[_element['pickupList']];
   }
 
@@ -146,8 +253,7 @@ class _UserPickUpState extends State<UserPickUp> {
                 ],
               ),
             ),
-            Container(color: Colors.brown, height: 300, child: PickUpList(pickupList: ['111', '1'],),),
-            Container(color: Colors.purple, height: 300,),
+            PickUpListView(convert_pickupList: userPickup_MapToList),
           ],
         ),
       ),
@@ -186,25 +292,21 @@ class _UserPickUpState extends State<UserPickUp> {
   }
 }
 
-class PickUpList extends StatelessWidget {
-  final List<String> pickupList;
-  const PickUpList({super.key, required this.pickupList});
 
-  @override
-  Widget build(BuildContext context) {
-    return Column(
-        children: _getInputs()
-    );
-  }
-
-  List<Widget> _getInputs(){
-    List<Widget> textWidgetList = [];
-    pickupList.forEach((element) {
-      textWidgetList.add(Text(element));
-    });
-    return textWidgetList;
-  }
+class PickStateWidget{
+  stateWidget(pickState){
+    if(pickState == 0){
+     return Container(
+       color: Colors.red,
+       child: Text('픽업대기'),
+     );
+    }
+    if(pickState == 1){
+      return Container(
+        color: Colors.blue,
+        child: Text('픽업완료'),
+      );
+    }
+    }
 }
-
-
 
