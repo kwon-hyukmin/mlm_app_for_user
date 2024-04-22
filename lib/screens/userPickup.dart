@@ -1,3 +1,5 @@
+import 'dart:math';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/foundation.dart';
@@ -10,7 +12,7 @@ void main() {
   runApp(MaterialApp(
     home: Scaffold(
       appBar: AppBar(
-        backgroundColor: Colors.blue,
+        backgroundColor: Color(0xFF3366CC),
         title: const Text('Micro Last Mile Title', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
       ),
       body: const UserPickUp(
@@ -106,25 +108,93 @@ class PickUpListView extends StatelessWidget {
     convert_pickupList.forEach((element) {
       textWidgetList.add(
           Container(
+            decoration: const BoxDecoration(
+                border: Border.symmetric(horizontal: BorderSide(color: Colors.grey),)
+            ),
+            // color: Colors.pink,
             height: 150,
             child: Column(
+              crossAxisAlignment: CrossAxisAlignment.center,
+              mainAxisAlignment: MainAxisAlignment.start,
               children: [
-                Row(
-                  children: [
-                  AutoSizeText('운송장번호: '),
-                  AutoSizeText(element.invoiceNo!),
-                  ],),
-                Text(element.deliveryCoo!),
-                Text(element.address!),
-                Row(
-                  children: [
-                    AutoSizeText(element.detailAddress!),
-                    AutoSizeText(element.boxType!),
-                    AutoSizeText('${element.deliveryFee!}')
-                  ],),
-                Container(
-                  height: 20,
-                  child: PickStateWidget().stateWidget(element.pickupState)
+                Expanded(
+                  child: Row(
+                    children: [
+                    const AutoSizeText(
+                      '운송장번호 : ',
+                      minFontSize: 1,
+                      maxFontSize: 100,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
+                    ),
+                      AutoSizeText(
+                        element.invoiceNo!,
+                        minFontSize: 1,
+                        maxFontSize: 100,
+                        style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
+                      ),
+                    ],),
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: AutoSizeText(
+                      // textAlign: TextAlign.left,
+                      element.deliveryCoo!,
+                      minFontSize: 1,
+                      maxFontSize: 100,
+                      style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Container(
+                    alignment: Alignment.centerLeft,
+                    child: AutoSizeText(
+                      element.address!,
+                      minFontSize: 1,
+                      maxFontSize: 100,
+                      style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
+                    ),
+                  ),
+                ),
+                Expanded(
+                  child: Row(
+                    children: [
+                      Expanded(
+                        flex: 6,
+                        child: AutoSizeText(
+                          element.detailAddress!,
+                          minFontSize: 1,
+                          maxFontSize: 100,
+                          style: TextStyle(fontSize: 18, fontWeight: FontWeight.bold, color: Colors.black54),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 1,
+                        child: AutoSizeText(
+                          element.boxType!,
+                          minFontSize: 1,
+                          maxFontSize: 100,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Colors.black54),
+                        ),
+                      ),
+                      Expanded(
+                        flex: 3,
+                        child: AutoSizeText(
+                          '수수료 ${element.deliveryFee!} 원',
+                          minFontSize: 1,
+                          maxFontSize: 100,
+                          style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold, color: Color(0xFF3366CC)),
+                        ),
+                      )
+                    ],),
+                ),
+                Expanded(
+                  child: SizedBox(
+                    width: double.infinity,
+                    height: 30,
+                    child: PickStateWidget().stateWidget(element.pickupState)
+                  ),
                 )
               ]
             ),
@@ -297,14 +367,40 @@ class PickStateWidget{
   stateWidget(pickState){
     if(pickState == 0){
      return Container(
-       color: Colors.red,
-       child: Text('픽업대기'),
+       decoration: const BoxDecoration(
+       // border: Border.symmetric(horizontal: BorderSide(color: Colors.grey),),
+       color: Color(0xFFF2F2F2),),
+       alignment: Alignment.center,
+       child: const AutoSizeText(
+         minFontSize: 1,
+         maxFontSize: 100,
+         '픽업 대기 중',
+         textAlign: TextAlign.center,
+         style: TextStyle(
+           fontWeight: FontWeight.bold,
+           fontSize: 15,
+           color: Color(0xFF3366CC)
+         ),
+       ),
      );
     }
     if(pickState == 1){
       return Container(
-        color: Colors.blue,
-        child: Text('픽업완료'),
+        decoration: const BoxDecoration(
+        // border: Border.symmetric(horizontal: BorderSide(color: Colors.grey),),
+        color: Color(0xFF3366CC),),
+        alignment: Alignment.center,
+        child: const AutoSizeText(
+          minFontSize: 1,
+          maxFontSize: 100,
+          '픽업완료',
+          textAlign: TextAlign.center,
+          style: TextStyle(
+              fontWeight: FontWeight.bold,
+              fontSize: 15,
+              color: Colors.white
+          ),
+        )
       );
     }
     }
