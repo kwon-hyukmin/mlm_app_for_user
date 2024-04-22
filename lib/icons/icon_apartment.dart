@@ -1,18 +1,22 @@
-import 'package:flutter/cupertino.dart';
+// import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 
-void main(){
-  runApp(
-      const MaterialApp(
-        home: Scaffold(
-          body: Center(child: SizedBox(
-              width: 100,
-              height: 100,
-              child: ApartmentIcon(iConSize: 70,))),
-        ),
-      )
-  );
-}
+// void main(){
+//   runApp(
+//       const MaterialApp(
+//         home: Scaffold(
+//           body: Center(child: SizedBox(
+//           width: 100,
+//           height: 100,
+//           child: ApartmentIcon(
+//             iConSize: 70,
+//           ),
+//         ),
+//       ),
+//     ),
+//       )
+//   );
+// }
 
 class ApartmentIcon extends StatelessWidget {
   final double iConSize;
