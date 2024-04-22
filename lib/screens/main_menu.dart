@@ -8,7 +8,7 @@ void main(){
       appBar: AppBar(
         title: const Text(
           'Micro Last Mile Title',
-          style: TextStyle( fontSize: 20, color: Colors.white ) ,
+          style: TextStyle( fontSize: 30, color: Colors.white ) ,
         ),
         backgroundColor: Colors.indigo,
       ),
