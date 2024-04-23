@@ -16,7 +16,7 @@ class QrBarCode_Reader extends StatefulWidget {
 class _QrBarCode_ReaderState extends State<QrBarCode_Reader> {
   String? _qrInfo = '스캔하세요';
   bool _canVibrate = true;
-  // bool _camState = false;
+  bool _camState = false;
 
   @override
   void initState() {
