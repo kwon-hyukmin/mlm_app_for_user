@@ -1,11 +1,9 @@
-import 'dart:math';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
-import 'package:flutter/foundation.dart';
-import 'package:flutter/gestures.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:mlm_app_for_user/data/camefa_barcod_reader.dart';
 import 'package:mlm_app_for_user/icons/common_icon_container.dart';
 
 void main() {
@@ -337,7 +335,7 @@ class _UserPickUpState extends State<UserPickUp> {
                   Expanded(flex: 20, child: SizedBox(child: SizedBox.shrink(),)),
                   Expanded(
                     flex: 4,
-                    child:
+                    child: ReadBarCode(),
                     // IconButton(
                     //   icon: Icon(Icons.add_alarm)
                       //IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,),
@@ -345,11 +343,17 @@ class _UserPickUpState extends State<UserPickUp> {
                       //   )
                       // ),
                     //
-                    SizedBox(
-                        height: 60,
-                        // width: 5,
-                        child: IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,)
-                    ),),
+                    // SizedBox(
+                    //     height: 60,
+                    //     // width: 5,
+                    //     child: IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,)
+                    // ),
+                    // IconButton(
+                    //   icon: Icon(CupertinoIcons.barcode),
+                    //   onPressed: () {},
+                    // )
+                  ),
+
                   Expanded(flex: 1, child: SizedBox(child: SizedBox.shrink(),)),
                 ],
               ),
@@ -405,4 +409,50 @@ class PickStateWidget{
     }
     }
 }
+
+class ReadBarCode extends StatelessWidget {
+  const ReadBarCode({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return InkWell(
+      borderRadius: BorderRadius.circular(25),
+      splashColor: Color(0xFF003399),
+      child: IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,),
+      onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => AlertDialog(
+            alignment: Alignment.centerRight,
+
+            backgroundColor: Colors.black,
+            // title: const AutoSizeText(
+            //   '운송장을 스캔 해주세요.',
+            //   minFontSize: 1,
+            //   maxFontSize: 100,
+            //   style: TextStyle(
+            //     fontSize: 14,
+            //     fontWeight: FontWeight.bold,
+            //   ),
+            //   textAlign: TextAlign.center,
+            // ),
+            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+            content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+          ),
+        );
+        // showDialog(
+        //   useSafeArea: false,
+        //   anchorPoint: Offset(150, 150),
+        //   context: context,
+        //   builder: (context) => Container(
+        //     height: 100,
+        //     width: 100,
+        //     child: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        //   ),
+        // );
+      },
+    );
+  }
+}
+
 

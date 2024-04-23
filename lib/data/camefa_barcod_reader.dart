@@ -4,37 +4,19 @@ import 'package:flutter_beep/flutter_beep.dart';
 import 'package:flutter_vibrate/flutter_vibrate.dart';
 import 'package:wakelock/wakelock.dart';
 
-void main() {
-  runApp(MyApp());
-}
-
-class MyApp extends StatelessWidget {
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      title: 'QR/Bar코드인식 with 진동/소리',
-      debugShowCheckedModeBanner: false,
-      theme: ThemeData(
-        primarySwatch: Colors.blue,
-      ),
-      home: MyHomePage(title: 'QR/Bar코드인식 with 진동/소리'),
-    );
-  }
-}
-
-class MyHomePage extends StatefulWidget {
-  MyHomePage({Key? key, this.title}) : super(key: key);
+class QrBarCode_Reader extends StatefulWidget {
+  QrBarCode_Reader({Key? key, this.title}) : super(key: key);
 
   final String? title;
 
   @override
-  _MyHomePageState createState() => _MyHomePageState();
+  _QrBarCode_ReaderState createState() => _QrBarCode_ReaderState();
 }
 
-class _MyHomePageState extends State<MyHomePage> {
+class _QrBarCode_ReaderState extends State<QrBarCode_Reader> {
   String? _qrInfo = '스캔하세요';
   bool _canVibrate = true;
-  bool _camState = false;
+  // bool _camState = false;
 
   @override
   void initState() {
@@ -80,36 +62,33 @@ class _MyHomePageState extends State<MyHomePage> {
 
   @override
   Widget build(BuildContext context) {
-    return Scaffold(
-        appBar: AppBar(
-          title: Text(widget.title!),
-        ),
-        body:
-        Column(
-          crossAxisAlignment: CrossAxisAlignment.center,
-          children: [
-            SizedBox(
-              height: 500,
-              width: 500,
-              child: QRBarScannerCamera(
-                // 에러 발생시..
-                onError: (context, error) => Text(
-                  error.toString(),
-                  style: TextStyle(color: Colors.red),
-                ),
-                // QR 이 읽혔을 경우
-                qrCodeCallback: (code) {
-                  _qrCallback(code);
-                },
+    return Column(
+        crossAxisAlignment: CrossAxisAlignment.center,
+        children: [
+          SizedBox(
+            height: 300,
+            width: double.infinity,
+            child: QRBarScannerCamera(
+              // 에러 발생시..
+              onError: (context, error) => Text(
+                error.toString(),
+                style: TextStyle(color: Colors.red),
               ),
+              // QR 이 읽혔을 경우
+              qrCodeCallback: (code) {
+                _qrCallback(code);
+              },
             ),
-            /// 사이즈 자동 조절을 위해 FittedBox 사용
-            FittedBox(
-                fit: BoxFit.fitWidth,
-                child: Text(_qrInfo!, style: const TextStyle(fontWeight: FontWeight.bold),)
-            )
-          ],
-        )
-    );
+          ),
+          /// 사이즈 자동 조절을 위해 FittedBox 사용
+          FittedBox(
+              fit: BoxFit.fitWidth,
+              child: Text(_qrInfo!, style: const TextStyle(fontWeight: FontWeight.bold),)
+          ),
+          TextButton(
+            onPressed: () => Navigator.pop(context),
+            child: Text('닫기'))
+        ],
+      );
   }
 }
