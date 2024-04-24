@@ -420,36 +420,32 @@ class ReadBarCode extends StatelessWidget {
       splashColor: Color(0xFF003399),
       child: IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,),
       onTap: () {
-        showDialog(
-          context: context,
-          builder: (context) => AlertDialog(
-            alignment: Alignment.centerRight,
-
-            backgroundColor: Colors.black,
-            // title: const AutoSizeText(
-            //   '운송장을 스캔 해주세요.',
-            //   minFontSize: 1,
-            //   maxFontSize: 100,
-            //   style: TextStyle(
-            //     fontSize: 14,
-            //     fontWeight: FontWeight.bold,
-            //   ),
-            //   textAlign: TextAlign.center,
-            // ),
-            contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-            content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
-          ),
-        );
         // showDialog(
-        //   useSafeArea: false,
-        //   anchorPoint: Offset(150, 150),
         //   context: context,
-        //   builder: (context) => Container(
-        //     height: 100,
-        //     width: 100,
-        //     child: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        //   builder: (context) => AlertDialog(
+        //     alignment: Alignment.centerRight,
+        //     backgroundColor: Colors.black,
+        //     title: const AutoSizeText(
+        //       '운송장을 스캔 해주세요.',
+        //       minFontSize: 1,
+        //       maxFontSize: 100,
+        //       style: TextStyle(
+        //         fontSize: 14,
+        //         fontWeight: FontWeight.bold,
+        //       ),
+        //       textAlign: TextAlign.center,
+        //     ),
+        //     // contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+        //     // content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        //     content: Text("test")
         //   ),
         // );
+        showDialog(
+          useSafeArea: false,
+          anchorPoint: Offset(150, 150),
+          context: context,
+          builder: (context) => QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        );
       },
     );
   }
