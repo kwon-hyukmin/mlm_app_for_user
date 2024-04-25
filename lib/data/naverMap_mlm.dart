@@ -44,7 +44,7 @@ class NaverMapMlmApp extends StatelessWidget {
 
     return Container(
             child: NaverMap(
-              options: const NaverMapViewOptions(
+              options: NaverMapViewOptions(
                     initialCameraPosition: NCameraPosition(
                         target: NLatLng(0, 0),
                         zoom: 14,
