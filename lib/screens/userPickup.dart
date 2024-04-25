@@ -1,21 +1,27 @@
 
+// import 'dart:ffi';
+
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
 import 'package:mlm_app_for_user/data/camefa_barcod_reader.dart';
+import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/icons/common_icon_container.dart';
+import 'package:mlm_app_for_user/screens/pickupPoint_naverMap.dart';
 
-void main() {
+void main() async {
+  await NaverMapMlmApp_Initialize().initialize();
+  List<double> location_list = await Location().getCurrentLocation();
   runApp(MaterialApp(
     home: Scaffold(
       appBar: AppBar(
         backgroundColor: Color(0xFF3366CC),
         title: const Text('Micro Last Mile Title', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
       ),
-      body: const UserPickUp(
+      body: UserPickUp(
           pickPointAdd: '부평구 그랑힐스 아파트 204동',
-          mapUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fcafefiles.naver.net%2FMjAyMDAxMDdfMjUw%2FMDAxNTc4Mzc1MjczMjE2.omnVdXiux0b3UpOKPtP0E_9IhYEu2NopQxRn8lFOW5Ig.yWBxCtGxKUkFA_EvGnpO5X3idD7k71YbQF17_CTwdA0g.JPEG%2FScreenshot_20200107-143049_NAVER.jpg&type=a340',
+          initialLocation: location_list,
           pickupImgUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTA3MDhfMTkw%2FMDAxNjI1NzA4NTU4MDk5.VGnPEqOJ1Z8F51ZcH49uuCH7-Czk7Xdbqzy3SdWDTdsg.ajf5-CoEEYuKpKS-DvGIK_OCUosGgmwA7EDmopcD1d4g.JPEG.ykj4708%2FKakaoTalk_20210708_103656329_01.jpg&type=a340',
           pickupInfomation: '지하1층 204동 출입구 앞 펜스 안쪽에서 픽업 바랍니다.',
           pickupInfomationDetail: '주차구역번호 B1C4',
@@ -206,7 +212,7 @@ class PickUpListView extends StatelessWidget {
 
 class UserPickUp extends StatefulWidget {
   final String pickPointAdd;
-  final String mapUrl; /*네이버 지도 Api로 변경 해야 함*/
+  final List<double> initialLocation; /*네이버 지도 List >> Map으로 변경 해야 함*/
   final String pickupImgUrl; /*이미지 리스트로 변경??, 다음 상세화면에서 변경??*/
   final String pickupInfomation;
   final String pickupInfomationDetail;
@@ -218,7 +224,7 @@ class UserPickUp extends StatefulWidget {
   const UserPickUp(
       {super.key,
       required this.pickPointAdd,
-      required this.mapUrl,
+      required this.initialLocation,
       required this.pickupImgUrl,
       required this.pickupInfomation,
       required this.pickupInfomationDetail,
@@ -234,6 +240,7 @@ class UserPickUp extends StatefulWidget {
 
 class _UserPickUpState extends State<UserPickUp> {
   late int _leftCount;
+  late List<double> _initialLocation;
   late List<Map<String, dynamic>> _pickupListMap;
   List<UserPickup_MapToList> userPickup_MapToList = [];
   // late int _pickupState;
@@ -244,7 +251,7 @@ class _UserPickUpState extends State<UserPickUp> {
     super.initState();
     _leftCount = widget.leftCount;
     _pickupListMap = widget.pickupList;
-
+    _initialLocation = widget.initialLocation;
 
     _pickupListMap.forEach((element) {
       userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
@@ -288,7 +295,31 @@ class _UserPickUpState extends State<UserPickUp> {
                 children: [
                   Expanded(
                     flex: 1,
-                    child: Image.network(widget.mapUrl, fit: BoxFit.fill,),
+                    // child: Image.network(widget.mapUrl, fit: BoxFit.fill,),
+                    child: Stack(
+                        children: [
+                          NaverMapMlmApp(list: _initialLocation),
+                          Positioned(
+                            right: 0,
+                            child: InkWell(
+                              child: Container(
+                                height: 30,
+                                width: 30,
+                                decoration: BoxDecoration(
+                                  color: Colors.grey[200],
+                                  border: Border.all(color: Colors.grey),
+                                  borderRadius: BorderRadius.circular(3)
+                                  ),
+                                margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
+                                child: Icon(Icons.photo_size_select_large, color: Colors.black54,),
+                                ),
+                              onTap: () {
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PickupPoint_NaverMap(initialLocation: _initialLocation),));
+                              },
+                            ),
+                            ),
+                          ]
+                    )
                   ),
                   Expanded(
                     flex: 1,
@@ -450,5 +481,3 @@ class ReadBarCode extends StatelessWidget {
     );
   }
 }
-
-
