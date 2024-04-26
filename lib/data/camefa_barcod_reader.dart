@@ -83,11 +83,11 @@ class _QrBarCode_ReaderState extends State<QrBarCode_Reader> {
           /// 사이즈 자동 조절을 위해 FittedBox 사용
           FittedBox(
               fit: BoxFit.fitWidth,
-              child: Text(_qrInfo!, style: const TextStyle(fontWeight: FontWeight.bold),)
+              child: Text(_qrInfo!, style: const TextStyle(fontWeight: FontWeight.bold, color: Colors.white),)
           ),
           TextButton(
             onPressed: () => Navigator.pop(context),
-            child: Text('닫기'))
+            child: Text('닫기', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),))
         ],
       );
   }

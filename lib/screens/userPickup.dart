@@ -12,7 +12,7 @@ import 'package:mlm_app_for_user/screens/pickupPoint_naverMap.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
-  List<double> location_list = await Location().getCurrentLocation();
+  Map<String, double> locationMap = await Location().getCurrentLocation();
   runApp(MaterialApp(
     home: Scaffold(
       appBar: AppBar(
@@ -21,7 +21,7 @@ void main() async {
       ),
       body: UserPickUp(
           pickPointAdd: '부평구 그랑힐스 아파트 204동',
-          initialLocation: location_list,
+          initialLocation: locationMap,
           pickupImgUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTA3MDhfMTkw%2FMDAxNjI1NzA4NTU4MDk5.VGnPEqOJ1Z8F51ZcH49uuCH7-Czk7Xdbqzy3SdWDTdsg.ajf5-CoEEYuKpKS-DvGIK_OCUosGgmwA7EDmopcD1d4g.JPEG.ykj4708%2FKakaoTalk_20210708_103656329_01.jpg&type=a340',
           pickupInfomation: '지하1층 204동 출입구 앞 펜스 안쪽에서 픽업 바랍니다.',
           pickupInfomationDetail: '주차구역번호 B1C4',
@@ -212,7 +212,7 @@ class PickUpListView extends StatelessWidget {
 
 class UserPickUp extends StatefulWidget {
   final String pickPointAdd;
-  final List<double> initialLocation; /*네이버 지도 List >> Map으로 변경 해야 함*/
+  final Map<String, double> initialLocation; /*네이버 지도 List >> Map으로 변경 해야 함*/
   final String pickupImgUrl; /*이미지 리스트로 변경??, 다음 상세화면에서 변경??*/
   final String pickupInfomation;
   final String pickupInfomationDetail;
@@ -240,7 +240,7 @@ class UserPickUp extends StatefulWidget {
 
 class _UserPickUpState extends State<UserPickUp> {
   late int _leftCount;
-  late List<double> _initialLocation;
+  late Map<String, double> _initialLocation = Map();
   late List<Map<String, dynamic>> _pickupListMap;
   List<UserPickup_MapToList> userPickup_MapToList = [];
   // late int _pickupState;
@@ -298,20 +298,20 @@ class _UserPickUpState extends State<UserPickUp> {
                     // child: Image.network(widget.mapUrl, fit: BoxFit.fill,),
                     child: Stack(
                         children: [
-                          NaverMapMlmApp(list: _initialLocation),
+                          NaverMapMlmApp(initial_LocationMap: _initialLocation),
                           Positioned(
                             right: 0,
                             child: InkWell(
                               child: Container(
-                                height: 30,
-                                width: 30,
+                                height: 40,
+                                width: 40,
                                 decoration: BoxDecoration(
-                                  color: Colors.grey[200],
+                                  color: Colors.white,
                                   border: Border.all(color: Colors.grey),
                                   borderRadius: BorderRadius.circular(3)
                                   ),
                                 margin: EdgeInsets.symmetric(vertical: 5, horizontal: 5),
-                                child: Icon(Icons.photo_size_select_large, color: Colors.black54,),
+                                child: Icon(CupertinoIcons.fullscreen, color: Colors.black54,),
                                 ),
                               onTap: () {
                                 Navigator.push(context, MaterialPageRoute(builder: (context) => PickupPoint_NaverMap(initialLocation: _initialLocation),));
@@ -365,7 +365,7 @@ class _UserPickUpState extends State<UserPickUp> {
                 children: [
                   Expanded(flex: 20, child: SizedBox(child: SizedBox.shrink(),)),
                   Expanded(
-                    flex: 4,
+                    flex: 5,
                     child: ReadBarCode(),
                     // IconButton(
                     //   icon: Icon(Icons.add_alarm)
@@ -451,9 +451,41 @@ class ReadBarCode extends StatelessWidget {
       splashColor: Color(0xFF003399),
       child: IconCircleContainer(innerColor: Colors.white, outerColor: Color(0xFF003399), icon: CupertinoIcons.barcode,),
       onTap: () {
+        showDialog(
+          context: context,
+          builder: (context) => Column(
+          mainAxisSize: MainAxisSize.min,
+          children: [
+            AlertDialog(
+              // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+              shape: RoundedRectangleBorder(
+                  borderRadius: BorderRadius.circular(0.0)),
+              alignment: Alignment.centerRight,
+              backgroundColor: Colors.black,
+              title: const AutoSizeText(
+                '운송장을 스캔 해주세요.',
+                minFontSize: 1,
+                maxFontSize: 100,
+                style: TextStyle(
+                  color: Colors.white,
+                  fontSize: 14,
+                  fontWeight: FontWeight.bold,
+                ),
+                textAlign: TextAlign.center,
+              ),
+              contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+              content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+              // content: Text("test")
+            ),
+          ],
+                      ),
+        );
         // showDialog(
         //   context: context,
         //   builder: (context) => AlertDialog(
+        //     // RoundedRectangleBorder - Dialog 화면 모서리 둥글게 조절
+        //     shape: RoundedRectangleBorder(
+        //         borderRadius: BorderRadius.circular(0.0)),
         //     alignment: Alignment.centerRight,
         //     backgroundColor: Colors.black,
         //     title: const AutoSizeText(
@@ -461,22 +493,23 @@ class ReadBarCode extends StatelessWidget {
         //       minFontSize: 1,
         //       maxFontSize: 100,
         //       style: TextStyle(
+        //         color: Colors.white,
         //         fontSize: 14,
         //         fontWeight: FontWeight.bold,
         //       ),
         //       textAlign: TextAlign.center,
         //     ),
-        //     // contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
-        //     // content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
-        //     content: Text("test")
+        //     contentPadding: EdgeInsets.symmetric(vertical: 0, horizontal: 0),
+        //     content: QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        //     // content: Text("test")
         //   ),
         // );
-        showDialog(
-          useSafeArea: false,
-          anchorPoint: Offset(150, 150),
-          context: context,
-          builder: (context) => QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
-        );
+        // showDialog(
+        //   useSafeArea: false,
+        //   anchorPoint: Offset(150, 150),
+        //   context: context,
+        //   builder: (context) => QrBarCode_Reader(title: 'QR/Bar코드인식 with 진동/소리'),
+        // );
       },
     );
   }

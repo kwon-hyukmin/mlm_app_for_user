@@ -6,21 +6,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 
 
-
-void main() async {
-
-  await NaverMapMlmApp_Initialize().initialize();
-  // await Location().getCurrentLocation();
-  List<double> list = await Location().getCurrentLocation();
-
-  print('list');
-  print(list);
-  runApp(NaverMapMlmApp(list: list,));
-}
-
 // 지도 초기화하기
-
-
 class NaverMapMlmApp_Initialize{
   Future<void> initialize() async {
     WidgetsFlutterBinding.ensureInitialized();
@@ -30,16 +16,14 @@ class NaverMapMlmApp_Initialize{
     );
     // await Location();
   }
-
-
 }
 
-
+//네이버맵 몸통
 class NaverMapMlmApp extends StatefulWidget {
-  final List<double> list;
+  final List<Map<String, double>>? marker_LocationListMap;
+  final Map<String, double> initial_LocationMap;
 
-
-  NaverMapMlmApp({Key? key, required this.list});
+  NaverMapMlmApp({Key? key, this.marker_LocationListMap, required this.initial_LocationMap});
 
   @override
   State<NaverMapMlmApp> createState() => _NaverMapMlmAppState();
@@ -47,42 +31,28 @@ class NaverMapMlmApp extends StatefulWidget {
 
 class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late NaverMapViewOptions naverMapViewOptions;
-  late double aaa;
-  late double bbb;
-  late List<double> _list;
-
+  late double Initial_latitude;
+  late double Initial_longitude;
+  late Map<String, double> _initial_LocationMap = Map();
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    print('widget.list');
-    print(widget.list);
-
-    _list = widget.list;
-    // list = Location().getCurrentLocation();
-    aaa = _list[0];
-    bbb = _list[1];
-    // list = Location().location;
-
-    print(aaa);
-    print(bbb);
-    // print(list);
+    _initial_LocationMap.addAll(widget.initial_LocationMap) ;
+    Initial_latitude = _initial_LocationMap['Initial_latitude'] ?? 0;
+    Initial_longitude = _initial_LocationMap['Initial_longitude'] ?? 0;
 
     naverMapViewOptions = NaverMapViewOptions(
       initialCameraPosition: NCameraPosition(
-          target: NLatLng(aaa, bbb), zoom: 14, bearing: 0, tilt: 0),
-      extent: NLatLngBounds(
-        southWest: NLatLng(31.43, 122.37),
-        northEast: NLatLng(44.35, 132.0),
-      ),
+        target: NLatLng(Initial_latitude, Initial_longitude), zoom: 14, bearing: 0, tilt: 0
+        ),
       locale: Locale('ko'),
-      indoorEnable: true,
-      // 실내 맵 사용 가능 여부 설정
-      locationButtonEnable: false,
-      // 위치 버튼 표시 여부 설정
+      indoorEnable: false, // 실내 맵 사용 가능 여부 설정
+      locationButtonEnable: true, // 위치 버튼 표시 여부 설정
       consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
+      logoClickEnable: false
     );
   }
 
@@ -90,7 +60,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   Widget build(BuildContext context) {
     // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
     final Completer<NaverMapController> mapControllerCompleter = Completer();
-    final marker = NMarker(id: 'marker_1',position: NLatLng(aaa, bbb), size: Size(20, 25));
+    final marker = NMarker(id: 'marker_1',position: NLatLng(Initial_latitude, Initial_longitude), size: Size(20, 25));
 
     return Container(
       child: NaverMap(
@@ -125,9 +95,9 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
 class Location {
   double latitude = 0;
   double longitude = 0;
-  List<double> location = [];
+  Map<String, double> location = Map();
 
-  Future<List<double>> getCurrentLocation() async {
+  Future<Map<String, double>> getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
     // print(permission);
     if (permission == LocationPermission.denied) {
@@ -140,8 +110,9 @@ class Location {
       longitude = position.longitude;
       // print(latitude);
       // print(longitude);
-      location.add(latitude);
-      location.add(longitude);
+      location.putIfAbsent('Initial_latitude', () => latitude);
+      location.putIfAbsent('Initial_longitude', () => longitude);
+
     } catch (e) {
       print(e);
     }
@@ -150,4 +121,19 @@ class Location {
 
     return location;
   }
+}
+
+
+class LocationListMap_toList {
+  String? marker_latitude;
+  String? marker_longitude;
+
+  LocationListMap_toList(marker_latitude, marker_longitude){
+    this.marker_latitude = marker_latitude;
+    this.marker_longitude = marker_longitude;
+  }
+
+  LocationListMap_toList.fromJson(Map<String, dynamic> json)
+      : marker_latitude = json['marker_latitude'],
+        marker_longitude = json['marker_longitude'];
 }
