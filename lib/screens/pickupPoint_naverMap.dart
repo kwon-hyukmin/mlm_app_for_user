@@ -6,7 +6,8 @@ import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 class PickupPoint_NaverMap extends StatelessWidget {
   // final List<double> initialLocation;
   final Map<String, double> initialLocation;
-  PickupPoint_NaverMap({super.key, required this.initialLocation});
+  final Map<String, double>? markerLocation;
+  PickupPoint_NaverMap({super.key, required this.initialLocation, this.markerLocation});
 
   @override
   Widget build(BuildContext context) {
@@ -14,7 +15,7 @@ class PickupPoint_NaverMap extends StatelessWidget {
       body: Container(
         child: Column(
           children: [
-            Expanded(flex: 12, child: NaverMapMlmApp(initial_LocationMap: initialLocation)),
+            Expanded(flex: 12, child: NaverMapMlmApp(initial_LocationMap: initialLocation, use_Gestures_yn: true, marker_LocationListMap: markerLocation,)),
             Expanded(
               flex: 1,
               child: Container(

@@ -1,6 +1,3 @@
-
-// import 'dart:ffi';
-
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
@@ -9,10 +6,12 @@ import 'package:mlm_app_for_user/data/camefa_barcod_reader.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/icons/common_icon_container.dart';
 import 'package:mlm_app_for_user/screens/pickupPoint_naverMap.dart';
+import 'package:mlm_app_for_user/screens/pickupPoint_picture.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
   Map<String, double> locationMap = await Location().getCurrentLocation();
+  Map<String, double> m_locationMap = await M_Location().getCurrentLocation();
   runApp(MaterialApp(
     home: Scaffold(
       appBar: AppBar(
@@ -22,6 +21,7 @@ void main() async {
       body: UserPickUp(
           pickPointAdd: '부평구 그랑힐스 아파트 204동',
           initialLocation: locationMap,
+          markerLocation: m_locationMap,
           pickupImgUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTA3MDhfMTkw%2FMDAxNjI1NzA4NTU4MDk5.VGnPEqOJ1Z8F51ZcH49uuCH7-Czk7Xdbqzy3SdWDTdsg.ajf5-CoEEYuKpKS-DvGIK_OCUosGgmwA7EDmopcD1d4g.JPEG.ykj4708%2FKakaoTalk_20210708_103656329_01.jpg&type=a340',
           pickupInfomation: '지하1층 204동 출입구 앞 펜스 안쪽에서 픽업 바랍니다.',
           pickupInfomationDetail: '주차구역번호 B1C4',
@@ -213,6 +213,7 @@ class PickUpListView extends StatelessWidget {
 class UserPickUp extends StatefulWidget {
   final String pickPointAdd;
   final Map<String, double> initialLocation; /*네이버 지도 List >> Map으로 변경 해야 함*/
+  final Map<String, double>? markerLocation;
   final String pickupImgUrl; /*이미지 리스트로 변경??, 다음 상세화면에서 변경??*/
   final String pickupInfomation;
   final String pickupInfomationDetail;
@@ -225,6 +226,7 @@ class UserPickUp extends StatefulWidget {
       {super.key,
       required this.pickPointAdd,
       required this.initialLocation,
+      this.markerLocation,
       required this.pickupImgUrl,
       required this.pickupInfomation,
       required this.pickupInfomationDetail,
@@ -241,6 +243,7 @@ class UserPickUp extends StatefulWidget {
 class _UserPickUpState extends State<UserPickUp> {
   late int _leftCount;
   late Map<String, double> _initialLocation = Map();
+  late Map<String, double>? _markerLocation = Map();
   late List<Map<String, dynamic>> _pickupListMap;
   List<UserPickup_MapToList> userPickup_MapToList = [];
   // late int _pickupState;
@@ -252,7 +255,7 @@ class _UserPickUpState extends State<UserPickUp> {
     _leftCount = widget.leftCount;
     _pickupListMap = widget.pickupList;
     _initialLocation = widget.initialLocation;
-
+    _markerLocation = widget.markerLocation;
     _pickupListMap.forEach((element) {
       userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
     });
@@ -298,7 +301,7 @@ class _UserPickUpState extends State<UserPickUp> {
                     // child: Image.network(widget.mapUrl, fit: BoxFit.fill,),
                     child: Stack(
                         children: [
-                          NaverMapMlmApp(initial_LocationMap: _initialLocation),
+                          NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: false,),
                           Positioned(
                             right: 0,
                             child: InkWell(
@@ -314,7 +317,7 @@ class _UserPickUpState extends State<UserPickUp> {
                                 child: Icon(CupertinoIcons.fullscreen, color: Colors.black54,),
                                 ),
                               onTap: () {
-                                Navigator.push(context, MaterialPageRoute(builder: (context) => PickupPoint_NaverMap(initialLocation: _initialLocation),));
+                                Navigator.push(context, MaterialPageRoute(builder: (context) => PickupPoint_NaverMap(initialLocation: _initialLocation, markerLocation: _markerLocation,),));
                               },
                             ),
                             ),
@@ -323,7 +326,15 @@ class _UserPickUpState extends State<UserPickUp> {
                   ),
                   Expanded(
                     flex: 1,
-                    child: Image.network(widget.pickupImgUrl, fit: BoxFit.fill, ),
+                    child: InkWell(
+                      child: Image.network(
+                        widget.pickupImgUrl,
+                        fit: BoxFit.fill,
+                        ),
+                      onTap: () {
+                        Navigator.push(context, MaterialPageRoute(builder: (context) => PickupPoint_picture(),));
+                      },
+                    ),
                   )
                 ],
               ),
