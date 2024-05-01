@@ -15,7 +15,7 @@ class PickupPoint_NaverMap extends StatelessWidget {
       body: Container(
         child: Column(
           children: [
-            Expanded(flex: 12, child: NaverMapMlmApp(initial_LocationMap: initialLocation, use_Gestures_yn: true, marker_LocationListMap: markerLocation,)),
+            Expanded(flex: 12, child: NaverMapMlmApp(initial_LocationMap: initialLocation, use_Gestures_yn: true, represent_marker_LocationMap: markerLocation,)),
             Expanded(
               flex: 1,
               child: Container(

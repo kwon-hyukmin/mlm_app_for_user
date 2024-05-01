@@ -20,11 +20,13 @@ class NaverMapMlmApp_Initialize{
 
 //네이버맵 몸통
 class NaverMapMlmApp extends StatefulWidget {
-  final Map<String, double>? marker_LocationListMap;
+  final Map<String, double>? represent_marker_LocationMap;
+  final List<Map<String, double>>? marker_LocationListMap;
   final Map<String, double> initial_LocationMap;
   final bool use_Gestures_yn;
+  final double? zoom_level;
 
-  NaverMapMlmApp({Key? key, this.marker_LocationListMap, required this.initial_LocationMap, required this.use_Gestures_yn});
+  NaverMapMlmApp({Key? key, this.represent_marker_LocationMap, required this.initial_LocationMap, required this.use_Gestures_yn, this.zoom_level, this.marker_LocationListMap});
 
   @override
   State<NaverMapMlmApp> createState() => _NaverMapMlmAppState();
@@ -36,28 +38,39 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late double Initial_longitude;
   late double marker_latitude;
   late double marker_longitude;
+  late double _zoom_level;
   late Map<String, double> _initial_LocationMap = Map();
-  late Map<String, double> _marker_LocationMap = Map();
+  late Map<String, double> _represent_marker_LocationMap = Map();
+  late List<Map<String, double>>? _marker_LocationListMap;
+  List<Marker_decodeMap> _marker_decodeMap = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
+
+    _marker_LocationListMap = widget.marker_LocationListMap;
+    _marker_LocationListMap?.forEach((element) {
+      _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
+    });
+
+
     print('_marker_LocationMap');
-    print(_marker_LocationMap);
+    print(_represent_marker_LocationMap);
     _initial_LocationMap.addAll(widget.initial_LocationMap) ;
-    _marker_LocationMap.addAll(widget.marker_LocationListMap ?? <String, double>{}) ;
+    _represent_marker_LocationMap.addAll(widget.represent_marker_LocationMap ?? <String, double>{}) ;
     Initial_latitude = _initial_LocationMap['Initial_latitude'] ?? 0;
     Initial_longitude = _initial_LocationMap['Initial_longitude'] ?? 0;
-    marker_latitude = _marker_LocationMap['marker_latitude'] ?? 0;
-    marker_longitude = _marker_LocationMap['marker_longitude'] ?? 0;
+    marker_latitude = _represent_marker_LocationMap['marker_latitude'] ?? 0;
+    marker_longitude = _represent_marker_LocationMap['marker_longitude'] ?? 0;
+    _zoom_level = widget.zoom_level ?? 14;
     print('marker_latitude');
     print(marker_latitude);
     print('marker_longitude');
     print(marker_latitude);
     naverMapViewOptions = NaverMapViewOptions(
       initialCameraPosition: NCameraPosition(
-        target: NLatLng(Initial_latitude, Initial_longitude), zoom: 14, bearing: 0, tilt: 0
+        target: NLatLng(Initial_latitude, Initial_longitude), zoom: _zoom_level, bearing: 0, tilt: 0
         ),
       rotationGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
       scrollGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
@@ -77,6 +90,17 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
     final Completer<NaverMapController> mapControllerCompleter = Completer();
     final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
+    final marker1 = NMarker(id: 'marker_2',position: NLatLng(37.493699, 126.780847), size: Size(20, 25));
+    final marker2 = NMarker(id: 'marker_3',position: NLatLng(37.495066, 126.781136), size: Size(20, 25));
+
+    final List<NMarker> listNmarker = [];
+
+    _marker_decodeMap.forEach((element) {
+      listNmarker.add(
+      NMarker(id: 'marker_${element.drop_latitude}_${element.drop_longitude}',position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0), size: Size(20, 25))
+      );
+    });
+
 
     return Container(
       child: NaverMap(
@@ -85,11 +109,15 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           mapControllerCompleter.complete(controller);  // Completer에 지도 컨트롤러 완료 신호 전송
           log("onMapReady", name: "onMapReady");
           controller.addOverlay(marker);
+          listNmarker.forEach((element) {
+            controller.addOverlay(element);
+          });
         },
       ),
     );
   }
 }
+
 
 
 class Location {
@@ -172,4 +200,26 @@ class M_Location {
 
     return m_location;
   }
+}
+
+
+class Marker_decodeMap {
+  double? drop_latitude;
+  double? drop_longitude;
+  double? drop_count;
+  // String? detailAddress;
+  // String? boxType;
+  // int? deliveryFee;
+  // int? pickupState;
+
+  Marker_decodeMap(drop_latitude, drop_longitude, drop_count){
+    this.drop_latitude = drop_latitude;
+    this.drop_longitude = drop_longitude;
+    this.drop_count = drop_count;
+  }
+
+  Marker_decodeMap.fromJson(Map<String, double> json)
+      : drop_latitude = json['drop_latitude'],
+        drop_longitude = json['drop_longitude'],
+        drop_count = json['drop_count'];
 }

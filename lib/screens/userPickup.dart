@@ -301,7 +301,7 @@ class _UserPickUpState extends State<UserPickUp> {
                     // child: Image.network(widget.mapUrl, fit: BoxFit.fill,),
                     child: Stack(
                         children: [
-                          NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: false,),
+                          NaverMapMlmApp(initial_LocationMap: _initialLocation, represent_marker_LocationMap: _markerLocation, use_Gestures_yn: false,),
                           Positioned(
                             right: 0,
                             child: InkWell(
