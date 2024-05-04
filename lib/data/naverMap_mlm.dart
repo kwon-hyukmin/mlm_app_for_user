@@ -1,10 +1,10 @@
 import 'dart:async';
 import 'dart:developer';
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
-
 
 // 지도 초기화하기
 class NaverMapMlmApp_Initialize{
@@ -28,6 +28,8 @@ class NaverMapMlmApp extends StatefulWidget {
 
   NaverMapMlmApp({Key? key, this.represent_marker_LocationMap, required this.initial_LocationMap, required this.use_Gestures_yn, this.zoom_level, this.marker_LocationListMap});
 
+
+
   @override
   State<NaverMapMlmApp> createState() => _NaverMapMlmAppState();
 }
@@ -43,6 +45,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late Map<String, double> _represent_marker_LocationMap = Map();
   late List<Map<String, double>>? _marker_LocationListMap;
   List<Marker_decodeMap> _marker_decodeMap = [];
+
 
   @override
   void initState() {
@@ -83,24 +86,52 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
       consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
       logoClickEnable: false
     );
+
   }
 
   @override
   Widget build(BuildContext context) {
     // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
     final Completer<NaverMapController> mapControllerCompleter = Completer();
-    final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
-    final marker1 = NMarker(id: 'marker_2',position: NLatLng(37.493699, 126.780847), size: Size(20, 25));
-    final marker2 = NMarker(id: 'marker_3',position: NLatLng(37.495066, 126.781136), size: Size(20, 25));
+    // final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
+    List<NMarker> listNmarker = [];
+    final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
 
-    final List<NMarker> listNmarker = [];
-
-    _marker_decodeMap.forEach((element) {
+    _marker_decodeMap.forEach((element) async {
       listNmarker.add(
-      NMarker(id: 'marker_${element.drop_latitude}_${element.drop_longitude}',position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0), size: Size(20, 25))
+      NMarker(
+        id: 'marker_${element.drop_latitude}_${element.drop_longitude}',
+        position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0),
+        alpha: 0.9,
+        size: Size(40, 40),
+
+        // 위젯으로 아이콘 만드는 부분
+           // 문제점 : 리스타트 할때 동일 이미지명으로 저장이 안되어서 지우고 다시 만드는 방법으로 수정해야 할 듯하며,
+           //         공통으로 빼서 호출해서 써야 하는데.. 컨텍스트를 줄 수 있을 지 봐야 함
+        icon: await NOverlayImage.fromWidget(
+          widget: Container(
+            decoration: BoxDecoration(
+              color: Color(0xFF64ACF8),
+              borderRadius: BorderRadius.circular(50),
+              border: Border.all(color: Color(0xFF3A7DCE))
+            ),
+            height: 30,
+            width: 30,
+            child: Center(
+              child: AutoSizeText(
+                '${element.drop_count}',
+                minFontSize: 1,
+                maxFontSize: 100,
+                style: TextStyle(fontSize: 8),
+                textAlign: TextAlign.center,
+                ),
+            ),
+            ),
+          size: Size(20, 20),
+          context: context)
+        )
       );
     });
-
 
     return Container(
       child: NaverMap(
@@ -108,9 +139,15 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
         onMapReady: (controller) async {                // 지도 준비 완료 시 호출되는 콜백 함수
           mapControllerCompleter.complete(controller);  // Completer에 지도 컨트롤러 완료 신호 전송
           log("onMapReady", name: "onMapReady");
+
+          // 대표마커
           controller.addOverlay(marker);
+
+          // Drop Point에 수량 찍어주는 마커
+          // controller.addOverlayAll(listNmarker.toSet());
           listNmarker.forEach((element) {
             controller.addOverlay(element);
+            element.setOnTapListener((overlay) => print('111111'));
           });
         },
       ),

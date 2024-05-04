@@ -1,12 +1,9 @@
-import 'package:auto_size_text/auto_size_text.dart';
+
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
-import 'package:mlm_app_for_user/data/camefa_barcod_reader.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
-import 'package:mlm_app_for_user/icons/common_icon_container.dart';
-import 'package:mlm_app_for_user/screens/pickupPoint_naverMap.dart';
-import 'package:mlm_app_for_user/screens/pickupPoint_picture.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
@@ -140,6 +137,8 @@ class Search_MapView extends StatefulWidget {
 class _Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
   late List<Map<String, double>>? _markerLocation;
+  // late NOverlayImage nOverlayImage;
+
 
   @override
   void initState() {
@@ -153,7 +152,7 @@ class _Search_MapViewState extends State<Search_MapView> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: true, zoom_level: 16,),
+      child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: true, zoom_level: 16),
     );
   }
 }
