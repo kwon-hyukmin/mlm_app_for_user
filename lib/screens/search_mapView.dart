@@ -1,8 +1,11 @@
 
+import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
+import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:geolocator/geolocator.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 
 void main() async {
@@ -125,10 +128,10 @@ void main() async {
 
 
 class Search_MapView extends StatefulWidget {
-  final Map<String, double> initialLocation;
+  final Map<String, double>? initialLocation;
   final List<Map<String, double>>? markerLocation;
 
-  const Search_MapView({super.key, required this.initialLocation, this.markerLocation});
+  const Search_MapView({super.key, this.initialLocation, this.markerLocation});
 
   @override
   State<Search_MapView> createState() => _Search_MapViewState();
@@ -137,6 +140,7 @@ class Search_MapView extends StatefulWidget {
 class _Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
   late List<Map<String, double>>? _markerLocation;
+  late double container_height = 10;
   // late NOverlayImage nOverlayImage;
 
 
@@ -145,22 +149,92 @@ class _Search_MapViewState extends State<Search_MapView> {
     // TODO: implement initState
     super.initState();
 
-    _initialLocation = widget.initialLocation;
+    _initialLocation = widget.initialLocation!;
     _markerLocation = widget.markerLocation;
+    container_height = 10;
+  }
+
+  void test_cont(){
+    setState(() {
+      container_height = 100;
+      print('ok');
+    });
   }
 
   @override
   Widget build(BuildContext context) {
-    return Container(
-      child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: true, zoom_level: 16),
+    return Stack(
+      children: [
+        Column(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Container(
+              child: Row(
+                children: [
+                  Expanded(flex: 7, child: Placeholder()),
+                  Expanded(
+                    flex: 3,
+                    child: Column(
+                      children: [
+                        Expanded(child: SizedBox()),
+                        Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 16, color: CupertinoColors.activeBlue),)),
+                        Expanded(child: Placeholder()),
+                        Expanded(child: SizedBox())
+                      ],
+                    )
+                  )
+                ],
+              ),
+            ),
+          ),
+          Expanded(
+            flex: 8,
+            child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: true, zoom_level: 16)
+          ),
+        ],
+      ),
+        Positioned(
+          child: Container(
+            child: TextButton(
+              child: Text('test'),
+              onPressed: () => test_cont(),
+            ),
+            height: container_height,
+            width: 370,
+            color: Colors.blue,
+            ),
+          bottom: 0,
+        )
+      ]
     );
   }
 }
 
 
 
+class Test{
+  test(){
+    print('test');
+    _Search_MapViewState().test_cont();
+    print('okok');
 
+  }
+}
 
+class Create_droplistView extends StatefulWidget {
+  const Create_droplistView({super.key});
+
+  @override
+  State<Create_droplistView> createState() => _Create_droplistViewState();
+}
+
+class _Create_droplistViewState extends State<Create_droplistView> {
+  @override
+  Widget build(BuildContext context) {
+    return const Placeholder();
+  }
+}
 
 
 //

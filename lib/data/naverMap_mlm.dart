@@ -2,9 +2,12 @@ import 'dart:async';
 import 'dart:developer';
 
 import 'package:auto_size_text/auto_size_text.dart';
+import 'package:flutter/animation.dart';
+import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mlm_app_for_user/screens/search_mapView.dart';
 
 // 지도 초기화하기
 class NaverMapMlmApp_Initialize{
@@ -45,7 +48,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late Map<String, double> _represent_marker_LocationMap = Map();
   late List<Map<String, double>>? _marker_LocationListMap;
   List<Marker_decodeMap> _marker_decodeMap = [];
-
+  late NOverlayImage nOverlayImage1;
 
   @override
   void initState() {
@@ -87,6 +90,8 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
       logoClickEnable: false
     );
 
+
+
   }
 
   @override
@@ -97,38 +102,41 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     List<NMarker> listNmarker = [];
     final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
 
+
+
+
     _marker_decodeMap.forEach((element) async {
       listNmarker.add(
       NMarker(
         id: 'marker_${element.drop_latitude}_${element.drop_longitude}',
         position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0),
-        alpha: 0.9,
+        alpha: 0.7,
         size: Size(40, 40),
-
+        icon: NOverlayImage.fromAssetImage('assets/icons/${element.drop_count}.png'),
         // 위젯으로 아이콘 만드는 부분
            // 문제점 : 리스타트 할때 동일 이미지명으로 저장이 안되어서 지우고 다시 만드는 방법으로 수정해야 할 듯하며,
            //         공통으로 빼서 호출해서 써야 하는데.. 컨텍스트를 줄 수 있을 지 봐야 함
-        icon: await NOverlayImage.fromWidget(
-          widget: Container(
-            decoration: BoxDecoration(
-              color: Color(0xFF64ACF8),
-              borderRadius: BorderRadius.circular(50),
-              border: Border.all(color: Color(0xFF3A7DCE))
-            ),
-            height: 30,
-            width: 30,
-            child: Center(
-              child: AutoSizeText(
-                '${element.drop_count}',
-                minFontSize: 1,
-                maxFontSize: 100,
-                style: TextStyle(fontSize: 8),
-                textAlign: TextAlign.center,
-                ),
-            ),
-            ),
-          size: Size(20, 20),
-          context: context)
+        // icon: await NOverlayImage.fromWidget(
+        //   widget: Container(
+        //     decoration: BoxDecoration(
+        //       color: Color(0xFF64ACF8),
+        //       borderRadius: BorderRadius.circular(50),
+        //       border: Border.all(color: Color(0xFF3A7DCE))
+        //     ),
+        //     height: 30,
+        //     width: 30,
+        //     child: Center(
+        //       child: AutoSizeText(
+        //         '${element.drop_count}',
+        //         minFontSize: 1,
+        //         maxFontSize: 100,
+        //         style: TextStyle(fontSize: 8),
+        //         textAlign: TextAlign.center,
+        //         ),
+        //     ),
+        //     ),
+        //   size: Size(20, 20),
+        //   context: context)
         )
       );
     });
@@ -147,7 +155,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           // controller.addOverlayAll(listNmarker.toSet());
           listNmarker.forEach((element) {
             controller.addOverlay(element);
-            element.setOnTapListener((overlay) => print('111111'));
+            element.setOnTapListener((overlay) => Test().test() );
           });
         },
       ),
