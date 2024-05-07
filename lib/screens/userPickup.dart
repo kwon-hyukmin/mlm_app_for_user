@@ -253,9 +253,9 @@ class _UserPickUpState extends State<UserPickUp> {
     // TODO: implement initState
     super.initState();
     _leftCount = widget.leftCount;
-    _pickupListMap = widget.pickupList;
     _initialLocation = widget.initialLocation;
     _markerLocation = widget.markerLocation;
+    _pickupListMap = widget.pickupList;
     _pickupListMap.forEach((element) {
       userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
     });

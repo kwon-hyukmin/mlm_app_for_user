@@ -7,6 +7,9 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
+import 'package:mlm_app_for_user/screens/userPickup.dart';
+
+import '../data/testData.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
@@ -32,11 +35,11 @@ void main() async {
             },
             {'drop_latitude' : 37.495066,
              'drop_longitude' : 126.781136,
-             'drop_count' : 10
+             'drop_count' : 3
             },
             {'drop_latitude' : 37.493699,
              'drop_longitude' : 126.780847,
-             'drop_count' : 25
+             'drop_count' : 5
             },
           ],
       ),
@@ -75,7 +78,9 @@ class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
   late List<Map<String, double>>? _markerLocation;
   late double container_height = 150;
-  bool visible = false;
+  bool dropItemTitle_visible = true;
+  bool dropItemList_visible = false;
+  List<DropItem_List_decodeMap> dropItem_ListMap = [];
   // late NOverlayImage nOverlayImage;
 
 
@@ -86,8 +91,8 @@ class Search_MapViewState extends State<Search_MapView> {
 
     _initialLocation = widget.initialLocation!;
     _markerLocation = widget.markerLocation;
-    container_height = 250;
-    visible = true;
+    container_height = 50;
+    // visible = true;
   }
 
 
@@ -127,7 +132,12 @@ class Search_MapViewState extends State<Search_MapView> {
           bottom: 0,
           left: 0,
           right: 0,
-          child: DropList_Title(container_height: container_height, visible: this.visible,),
+          child: Column(
+            children: [
+              Visibility(visible: dropItemTitle_visible, child: DropList_Title(container_height: container_height,)),
+              Visibility(visible: dropItemList_visible, child: DropItem_ListView(convert_dropItemList: dropItem_ListMap))
+            ],
+          ),
         )
       ]
     );
@@ -135,90 +145,108 @@ class Search_MapViewState extends State<Search_MapView> {
 }
 
 
-
-class Create_droplistView extends StatefulWidget {
-  const Create_droplistView({super.key});
-
-  @override
-  State<Create_droplistView> createState() => _Create_droplistViewState();
-}
-
-class _Create_droplistViewState extends State<Create_droplistView> {
-  @override
-  Widget build(BuildContext context) {
-    return const Placeholder();
-  }
-}
-
-
 class DropList_Title extends StatefulWidget {
   final double container_height;
-  final bool visible;
-  DropList_Title({super.key, required this.container_height, required this.visible});
+  DropList_Title({super.key, required this.container_height});
 
   @override
   State<DropList_Title> createState() => DropList_TitleState();
 }
 
 class DropList_TitleState extends State<DropList_Title> {
-  // late bool _visible;
-
-  // @override
-  // void initState() {
-  //   // TODO: implement initState
-  //   super.initState();
-  //
-  //   // _visible = widget.visible;
-  // }
-
-  // @override
-  // void setState(VoidCallback fn) {
-  //   // TODO: implement setState
-  //   super.setState(fn);
-  //
-  //   _visible = widget.visible;
-  //   print('visible : $_visible');
-  // }
-
   @override
   Widget build(BuildContext context) {
     return Container(
-      child: Column(
-        children: [
-          Row(
-            children: [
-              Expanded(child: Container(
-                decoration: BoxDecoration(border: Border(right: BorderSide(width: 0.5, color: Colors.grey))),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.center,
-                  crossAxisAlignment: CrossAxisAlignment.center,
-                  children: [
-                    AutoSizeText('data_title_1', textAlign: TextAlign.right),
-                    AutoSizeText(' data', textAlign: TextAlign.left, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
-                  ],
-                ),
-              )),
-              Expanded(child: Row(
+      height: widget.container_height,
+      decoration: const BoxDecoration(
+          border: Border.symmetric(
+              horizontal: BorderSide(width: 0.5, color: Colors.grey)),
+          color: Colors.white),
+      child: Expanded(
+        child: Row(
+          children: [
+            Expanded(
+                child: Container(
+                  decoration: const BoxDecoration(
+                  border: Border(
+                  right: BorderSide(width: 0.5, color: Colors.grey))),
+                  child: const Row(
+                    mainAxisAlignment: MainAxisAlignment.center,
+                    crossAxisAlignment: CrossAxisAlignment.center,
+                    children: [
+                      AutoSizeText('data_title_1', textAlign: TextAlign.right),
+                      AutoSizeText(
+                        'data',
+                        textAlign: TextAlign.left,
+                        style: TextStyle(
+                          color: Colors.red, fontWeight: FontWeight.bold
+                        ),
+                      ),
+                    ],
+                  ),
+                )
+            ),
+            const Expanded(
+              child: Row(
                 mainAxisAlignment: MainAxisAlignment.center,
-                crossAxisAlignment: CrossAxisAlignment.center,
+                // crossAxisAlignment: CrossAxisAlignment.center,
                 children: [
                   AutoSizeText('data_title_2', textAlign: TextAlign.right),
-                  AutoSizeText(' data', textAlign: TextAlign.left, style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),),
+                  AutoSizeText(
+                    'data',
+                    textAlign: TextAlign.left,
+                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                  ),
                 ],
-              )),
-            ],
-          ),
-          Visibility(
-            maintainAnimation: bool.hasEnvironment('name'),
-            visible: widget.visible,
-            child: Container(height: 100, color: Colors.green),)
-        ],
-      ),
-      height: widget.container_height,
-      decoration: BoxDecoration(
-          border: Border.symmetric(horizontal: BorderSide(width: 0.5, color: Colors.grey)),
-          color: Colors.white
+              )
+            ),
+          ],
+        ),
       ),
     );
+  }
+}
+
+class DropItem_ListView extends StatelessWidget {
+  final List<DropItem_List_decodeMap> convert_dropItemList;
+  const DropItem_ListView({super.key, required this.convert_dropItemList});
+
+  @override
+  Widget build(BuildContext context) {
+    return Column(
+        children: _getDropItem()
+    );
+  }
+
+  List<Widget> _getDropItem(){
+    List<Widget> dropItemWidgetList = [];
+    convert_dropItemList.forEach((element) {
+      dropItemWidgetList.add(
+          Container(
+            child: Row(
+              children: [
+                Container(
+                  child: Placeholder(),
+                ),
+                Column(
+                  children: [
+                    AutoSizeText('${element.complexName}'),
+                    AutoSizeText('${element.detailAddress}'),
+                    AutoSizeText('${element.complexType}'),
+                    Row(
+                      children: [
+                        AutoSizeText('${element.boxType}'),
+                        AutoSizeText('${element.deliveryFee}'),
+                      ],
+                    ),
+                    AutoSizeText('${element.tagInfo}')
+                  ],
+                )
+              ],
+            ),
+          )
+      );
+    });
+    return dropItemWidgetList;
   }
 }

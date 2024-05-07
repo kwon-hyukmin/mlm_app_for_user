@@ -7,6 +7,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mlm_app_for_user/data/testData.dart';
 import 'package:mlm_app_for_user/screens/search_mapView.dart';
 
 // 지도 초기화하기
@@ -158,13 +159,13 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             controller.addOverlay(element);
             element.setOnTapListener((overlay) {
               parent?.setState(() {
-                print('${parent.container_height} test');
-                print('${parent.visible} test');
-                if (parent.container_height == 400){parent.container_height = 250;}
-                else {parent.container_height = 400;}
-                if (parent.visible == false){parent.visible = true;}
-                else {parent.visible = false;}
-                print('${parent.visible} test');
+                if (parent.container_height == 50){parent.container_height = 250;}
+                else {parent.container_height = 50;}
+
+                if (parent.dropItemList_visible == false){parent.dropItemList_visible = true;}
+                else {parent.dropItemList_visible = false;}
+
+                parent.dropItem_ListMap = DropItemList_TestData().dropItem_List('1');
               });
             },);
           });
