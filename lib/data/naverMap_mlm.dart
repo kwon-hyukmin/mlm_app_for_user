@@ -101,6 +101,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     // final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
     List<NMarker> listNmarker = [];
     final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
+    Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
 
 
 
@@ -155,7 +156,17 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           // controller.addOverlayAll(listNmarker.toSet());
           listNmarker.forEach((element) {
             controller.addOverlay(element);
-            element.setOnTapListener((overlay) => Test().test() );
+            element.setOnTapListener((overlay) {
+              parent?.setState(() {
+                print('${parent.container_height} test');
+                print('${parent.visible} test');
+                if (parent.container_height == 400){parent.container_height = 250;}
+                else {parent.container_height = 400;}
+                if (parent.visible == false){parent.visible = true;}
+                else {parent.visible = false;}
+                print('${parent.visible} test');
+              });
+            },);
           });
         },
       ),
