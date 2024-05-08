@@ -160,17 +160,8 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             controller.addOverlay(element);
             element.setOnTapListener((overlay) {
               parent?.setState(() {
-                if (parent.container_height == 50){parent.container_height = 130;}
-                else {parent.container_height = 50;}
-
-                if (parent.dropItemList_visible == false){parent.dropItemList_visible = true;}
-                else {parent.dropItemList_visible = false;}
-
-                if (parent.dropItemListTitle_visible == false){parent.dropItemListTitle_visible = true;}
-                else {parent.dropItemListTitle_visible = false;}
-
-                if (parent.dropItemTitle_visible == false){parent.dropItemTitle_visible = true;}
-                else {parent.dropItemTitle_visible = false;}
+                parent.dropItemList_visible = true;
+                parent.inArea_DropSummary_visible = true;
                 parent.dropItem_TestData.clear();
                 parent.convert_dropItem_ListMap.clear();
                 parent.dropItem_TestData = DropItemList_TestData().dropItem_List('1');

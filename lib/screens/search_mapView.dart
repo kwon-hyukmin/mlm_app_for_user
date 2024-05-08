@@ -1,5 +1,6 @@
 
 import 'dart:async';
+import 'dart:ffi';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
@@ -80,10 +81,8 @@ class Search_MapView extends StatefulWidget {
 class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
   late List<Map<String, double>>? _markerLocation;
-  late double container_height;
-  bool dropItemTitle_visible = true;
   bool dropItemList_visible = false;
-  bool dropItemListTitle_visible = false;
+  bool inArea_DropSummary_visible = true;
   late List<Map<String, dynamic>> dropItem_TestData = [];
   List<DropItem_List_decodeMap> convert_dropItem_ListMap = [];
   // late NOverlayImage nOverlayImage;
@@ -96,7 +95,6 @@ class Search_MapViewState extends State<Search_MapView> {
 
     _initialLocation = widget.initialLocation!;
     _markerLocation = widget.markerLocation;
-    container_height = 50;
     // visible = true;
   }
 
@@ -143,31 +141,23 @@ class Search_MapViewState extends State<Search_MapView> {
         ],
       ),
         Visibility(
-          visible: dropItemTitle_visible,
+          visible: inArea_DropSummary_visible,
           child: Positioned(
             bottom: 0,
             left: 0,
             right: 0,
-            child: Container(height: container_height, color: Colors.white,
-              child: DropList_Title(),
+            child: Container(height: 50, color: Colors.white,
+              child: InArea_DropSummary(),
             ),
           ),
         ),
-        // Visibility(visible: dropItemListTitle_visible,
-        //     child: DraggableScrollableSheet(
-        //       minChildSize: 0.2,
-        //       initialChildSize: 0.4,
-        //       maxChildSize: 0.5,
-        //       builder: (context, scrollController) {
-        //         return SingleChildScrollView(
-        //             controller: scrollController,
-        //             child: DropItem_ListView(convert_dropItemList: convert_dropItem_ListMap),
-        //         );
-        //       },
-        //     )
-        // ),
-        Visibility(visible: dropItemListTitle_visible,
-            child: DropItem_ListView(convert_dropItemList: convert_dropItem_ListMap),
+        Visibility(visible: dropItemList_visible,
+            child: Column(
+              children: [
+                // Container(color: Colors.red, height: 10, ),
+                Expanded(child: DropItem_ListView(convert_dropItemList: convert_dropItem_ListMap)),
+              ],
+            ),
         )
       ]
     );
@@ -175,15 +165,15 @@ class Search_MapViewState extends State<Search_MapView> {
 }
 
 
-class DropList_Title extends StatefulWidget {
+class InArea_DropSummary extends StatefulWidget {
   // final double container_height;
-  DropList_Title({super.key});
+  InArea_DropSummary({super.key});
 
   @override
-  State<DropList_Title> createState() => DropList_TitleState();
+  State<InArea_DropSummary> createState() => InArea_DropSummaryState();
 }
 
-class DropList_TitleState extends State<DropList_Title> {
+class InArea_DropSummaryState extends State<InArea_DropSummary> {
   @override
   Widget build(BuildContext context) {
     return Container(
@@ -236,12 +226,70 @@ class DropList_TitleState extends State<DropList_Title> {
 }
 
 
-class DropItem_Title extends StatelessWidget {
-  const DropItem_Title({super.key});
+class DropItem_Header extends StatefulWidget {
+  final int parent_ListView_length;
+  const DropItem_Header({super.key, required this.parent_ListView_length});
+
+  @override
+  State<DropItem_Header> createState() => _DropItem_HeaderState();
+}
+
+class _DropItem_HeaderState extends State<DropItem_Header> {
+  late bool _allCheckboxValue;
+  late int _parent_ListView_length;
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+
+    _allCheckboxValue = false;
+    _parent_ListView_length = widget.parent_ListView_length;
+  }
 
   @override
   Widget build(BuildContext context) {
-    return Container(height: 30, child: AutoSizeText('test'),);
+    DropItem_ListViewState? parent = context.findAncestorStateOfType<DropItem_ListViewState>();
+
+    return Container(
+      width: double.infinity,
+      height: 40,
+      decoration: BoxDecoration(
+        color: Colors.white,
+        border: Border.symmetric(horizontal: BorderSide(color: Colors.grey, width: 0.5))
+      ),
+      child: Row(
+        children: [
+          Expanded(
+            flex: 2,
+            child: Checkbox(
+              value: _allCheckboxValue,
+              onChanged: (value) {
+                setState(() {
+                  _allCheckboxValue = value!;
+                });
+                parent?.setState(() {
+                  _parent_ListView_length = parent._checkboxValue_List.length;
+                  for (int i = 0; i < _parent_ListView_length; i++) {
+                    parent._checkboxValue_List[i] = value!;
+                  }
+                });
+              },)),
+          Expanded(
+            flex: 8,
+            child: Row(
+              children: [
+                AutoSizeText('총', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                AutoSizeText('${_parent_ListView_length + 1}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red),),
+                AutoSizeText('개의 배송이 있습니다.', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                AutoSizeText('[', minFontSize: 1, style: TextStyle(fontSize: 12),),
+                AutoSizeText('1', minFontSize: 1, style: TextStyle(fontSize: 12, color: Colors.red),),
+                AutoSizeText('건 선택]', minFontSize: 1, style: TextStyle(fontSize: 12),),
+              ],
+            )),
+        ],
+      )
+    );
   }
 }
 
@@ -252,12 +300,12 @@ class DropItem_ListView extends StatefulWidget {
   const DropItem_ListView({super.key, required this.convert_dropItemList});
 
   @override
-  State<DropItem_ListView> createState() => _DropItem_ListViewState();
+  State<DropItem_ListView> createState() => DropItem_ListViewState();
 }
 
-class _DropItem_ListViewState extends State<DropItem_ListView> {
+class DropItem_ListViewState extends State<DropItem_ListView> {
   late List<DropItem_List_decodeMap> _convert_dropItemList = [];
-  late bool checkboxValue;
+  late List<bool> _checkboxValue_List = [];
 
   @override
   void initState() {
@@ -265,7 +313,9 @@ class _DropItem_ListViewState extends State<DropItem_ListView> {
     super.initState();
     _convert_dropItemList.clear();
     _convert_dropItemList = widget.convert_dropItemList;
-    checkboxValue = false;
+    _convert_dropItemList.forEach((element) {
+      _checkboxValue_List.add(false);
+    });
   }
 
   @override
@@ -273,165 +323,60 @@ class _DropItem_ListViewState extends State<DropItem_ListView> {
     return DraggableScrollableSheet(
         minChildSize: 0.2,
         initialChildSize: 0.4,
-        maxChildSize: 0.8,
-        builder: (context, scrollController) {
-          return ListView.separated(
-              itemBuilder: (context, index) => ,
-              separatorBuilder: (context, index) => ,
-              itemCount:
+        maxChildSize: 0.7,
+        expand: false,
+        // builder: (context, scrollController) {
+        builder: (context, scrollController) =>
+          Column(
+            mainAxisSize: MainAxisSize.min,
+            children: [
+              DropItem_Header(parent_ListView_length: _convert_dropItemList.length),
+              Expanded(
+                child: ListView.separated(
+                    shrinkWrap: true,
+                    controller: scrollController,
+                    itemBuilder: (context, index) {
+                      return Container(
+                        height: 150,
+                        color: Colors.white,
+                        child: Row(
+                          children: [
+                            Expanded(flex: 2, child: Checkbox(value: _checkboxValue_List[index], onChanged: (value) {
+                              setState(() {
+                                _checkboxValue_List[index] = value!;
+                              });
+                            },)),
+                            Expanded(
+                              flex: 8,
+                              child: Column(
+                                children: [
+                                    AutoSizeText('${_convert_dropItemList.elementAt(index).complexName}', minFontSize: 1, style: TextStyle(fontSize: 10),),
+                                    AutoSizeText('${_convert_dropItemList.elementAt(index).detailAddress}', minFontSize: 1,style: TextStyle(fontSize: 10),),
+                                    AutoSizeText('${_convert_dropItemList.elementAt(index).complexType}', minFontSize: 1,style: TextStyle(fontSize: 10),),
+                                    Row(
+                                      children: [
+                                        AutoSizeText('${_convert_dropItemList.elementAt(index).boxType}', minFontSize: 1,style: TextStyle(fontSize: 10),),
+                                        AutoSizeText('${_convert_dropItemList.elementAt(index).deliveryFee}', minFontSize: 1,style: TextStyle(fontSize: 10),),
+                                      ],
+                                    ),
+                                    AutoSizeText('${_convert_dropItemList.elementAt(index).tagInfo}', minFontSize: 1,style: TextStyle(fontSize: 10),)
+                                ],
+                              ),
+                            ),
+                          ],
+                        )
+                      );
+                    } ,
+                    separatorBuilder: (context, index) => Divider(
+                        height: 0.2,
+                        color: Colors.grey,
+                      ),
+                    itemCount: _convert_dropItemList.length
+                ),
+              ),
+            ],
           )
-      // return ListView(
-      //   scrollDirection: Axis.vertical,
-      //   controller: scrollController,
-      //   shrinkWrap: true,
-      //   children: [
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {
-      //       setState(() {
-      //         print(value);
-      //         print(v)
-      //         checkboxValue = value!;
-      //       });
-      //     },),Text('1111'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('2222'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('3333'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('4444'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('5555'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('6666'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('7777'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('8888'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('9999'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('1111'),],)),
-      //     Container(color: Colors.white, height: 100, child: Row(children: [Checkbox(value: checkboxValue, onChanged: (value) {},),Text('2222'),],)),
-      //   ],
-      // );
-      }
+      // }
     );
   }
-
-
-  // ListView _getDropItem(){
-  //
-  //     List<Widget> dropItemWidgetList = [];
-  //     Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
-  //
-  //     _convert_dropItemList.forEach((element) {
-  //       dropItemWidgetList.add(
-  //           Container(
-  //             height: 100,
-  //             color: Colors.white,
-  //             child: Row(
-  //               children: [
-  //                 Expanded(
-  //                     flex: 1,
-  //                     child: Checkbox(
-  //                       value: checkboxValue,
-  //                       onChanged: (value) {
-  //                         print(value);
-  //
-  //                         parent?.setState(() {
-  //                           checkboxValue = value!;
-  //                           print(value);
-  //                         });
-  //
-  //                         // setState(() {
-  //                         //   if (value == false){
-  //                         //     checkboxValue = true;
-  //                         //   } else {checkboxValue = false;}
-  //                         // });
-  //                       },
-  //                     )
-  //                 ),
-  //                 Expanded(
-  //                   flex: 9,
-  //                   child: Column(
-  //                     children: [
-  //                       AutoSizeText('${element.complexName}', minFontSize: 1, style: TextStyle(fontSize: 5),),
-  //                       AutoSizeText('${element.detailAddress}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                       AutoSizeText('${element.complexType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                       Row(
-  //                         children: [
-  //                           AutoSizeText('${element.boxType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                           AutoSizeText('${element.deliveryFee}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                         ],
-  //                       ),
-  //                       AutoSizeText('${element.tagInfo}', minFontSize: 1,style: TextStyle(fontSize: 5),)
-  //                     ],
-  //                   ),
-  //                 )
-  //               ],
-  //             ),
-  //           )
-  //       );
-  //     });
-  //     return dropItemWidgetList;
-  // }
-
-
-
-  // @override
-  // Widget build(BuildContext context) {
-  //   return Column(
-  //       children: _getDropItem()
-  //   );
-  // }
-  //
-  //
-  //
-  // List<Widget> _getDropItem(){
-  //
-  //   List<Widget> dropItemWidgetList = [];
-  //   Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
-  //
-  //   _convert_dropItemList.forEach((element) {
-  //     dropItemWidgetList.add(
-  //         Container(
-  //           height: 100,
-  //           color: Colors.white,
-  //           child: Row(
-  //             children: [
-  //               Expanded(
-  //                   flex: 1,
-  //                   child: Checkbox(
-  //                     value: checkboxValue,
-  //                     onChanged: (value) {
-  //                       print(value);
-  //
-  //                       parent?.setState(() {
-  //                         checkboxValue = value!;
-  //                         print(value);
-  //                       });
-  //
-  //                       // setState(() {
-  //                       //   if (value == false){
-  //                       //     checkboxValue = true;
-  //                       //   } else {checkboxValue = false;}
-  //                       // });
-  //                     },
-  //                   )
-  //               ),
-  //               Expanded(
-  //                 flex: 9,
-  //                 child: Column(
-  //                   children: [
-  //                     AutoSizeText('${element.complexName}', minFontSize: 1, style: TextStyle(fontSize: 5),),
-  //                     AutoSizeText('${element.detailAddress}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                     AutoSizeText('${element.complexType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                     Row(
-  //                       children: [
-  //                         AutoSizeText('${element.boxType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                         AutoSizeText('${element.deliveryFee}', minFontSize: 1,style: TextStyle(fontSize: 5),),
-  //                       ],
-  //                     ),
-  //                     AutoSizeText('${element.tagInfo}', minFontSize: 1,style: TextStyle(fontSize: 5),)
-  //                   ],
-  //                 ),
-  //               )
-  //             ],
-  //           ),
-  //         )
-  //     );
-  //   });
-  //   return dropItemWidgetList;
-  // }
-
 }
