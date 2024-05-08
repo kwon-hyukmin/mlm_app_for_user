@@ -6,6 +6,7 @@ import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:get/get.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/screens/userPickup.dart';
 
@@ -77,10 +78,12 @@ class Search_MapView extends StatefulWidget {
 class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
   late List<Map<String, double>>? _markerLocation;
-  late double container_height = 150;
+  late double container_height;
   bool dropItemTitle_visible = true;
   bool dropItemList_visible = false;
-  List<DropItem_List_decodeMap> dropItem_ListMap = [];
+  bool dropItemListTitle_visible = false;
+  late List<Map<String, dynamic>> dropItem_TestData = [];
+  List<DropItem_List_decodeMap> convert_dropItem_ListMap = [];
   // late NOverlayImage nOverlayImage;
 
 
@@ -95,6 +98,15 @@ class Search_MapViewState extends State<Search_MapView> {
     // visible = true;
   }
 
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    super.setState(fn);
+
+    dropItem_TestData.forEach((element) {
+      convert_dropItem_ListMap.add(DropItem_List_decodeMap.fromJson(element));
+    });
+  }
 
 
   @override
@@ -128,17 +140,41 @@ class Search_MapViewState extends State<Search_MapView> {
           ),
         ],
       ),
-        Positioned(
-          bottom: 0,
-          left: 0,
-          right: 0,
-          child: Column(
-            children: [
-              Visibility(visible: dropItemTitle_visible, child: DropList_Title(container_height: container_height,)),
-              Visibility(visible: dropItemList_visible, child: DropItem_ListView(convert_dropItemList: dropItem_ListMap))
-            ],
+        Visibility(
+          visible: dropItemTitle_visible,
+          child: Positioned(
+            bottom: 0,
+            left: 0,
+            right: 0,
+            child: Container(height: container_height, color: Colors.white,
+              child: DropList_Title(),
+            ),
           ),
-        )
+        ),
+        Visibility(visible: dropItemListTitle_visible,
+            child: DraggableScrollableSheet(
+              minChildSize: 0.2,
+              initialChildSize: 0.4,
+              maxChildSize: 0.5,
+              builder: (context, scrollController) {
+                return SingleChildScrollView(
+                    // controller: scrollController,
+                    child: Column(
+                      children: [
+                        DropItem_Title(),
+                        SingleChildScrollView(
+                          controller: scrollController,
+                          child: DropItem_ListView(
+                              convert_dropItemList: convert_dropItem_ListMap
+                          ),
+                        ),
+                      ],
+                    )
+                );
+              },
+              // child:
+            )
+        ),
       ]
     );
   }
@@ -146,8 +182,8 @@ class Search_MapViewState extends State<Search_MapView> {
 
 
 class DropList_Title extends StatefulWidget {
-  final double container_height;
-  DropList_Title({super.key, required this.container_height});
+  // final double container_height;
+  DropList_Title({super.key});
 
   @override
   State<DropList_Title> createState() => DropList_TitleState();
@@ -157,90 +193,129 @@ class DropList_TitleState extends State<DropList_Title> {
   @override
   Widget build(BuildContext context) {
     return Container(
-      height: widget.container_height,
+      height: 50,
       decoration: const BoxDecoration(
           border: Border.symmetric(
               horizontal: BorderSide(width: 0.5, color: Colors.grey)),
           color: Colors.white),
-      child: Expanded(
-        child: Row(
-          children: [
-            Expanded(
-                child: Container(
-                  decoration: const BoxDecoration(
-                  border: Border(
-                  right: BorderSide(width: 0.5, color: Colors.grey))),
-                  child: const Row(
-                    mainAxisAlignment: MainAxisAlignment.center,
-                    crossAxisAlignment: CrossAxisAlignment.center,
-                    children: [
-                      AutoSizeText('data_title_1', textAlign: TextAlign.right),
-                      AutoSizeText(
-                        'data',
-                        textAlign: TextAlign.left,
-                        style: TextStyle(
-                          color: Colors.red, fontWeight: FontWeight.bold
-                        ),
+      child: Row(
+        children: [
+          Expanded(
+              child: Container(
+                decoration: const BoxDecoration(
+                border: Border(
+                right: BorderSide(width: 0.5, color: Colors.grey))),
+                child: const Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AutoSizeText('data_title_1', textAlign: TextAlign.right),
+                    AutoSizeText(
+                      'data',
+                      textAlign: TextAlign.left,
+                      style: TextStyle(
+                        color: Colors.red, fontWeight: FontWeight.bold
                       ),
-                    ],
-                  ),
-                )
-            ),
-            const Expanded(
-              child: Row(
-                mainAxisAlignment: MainAxisAlignment.center,
-                // crossAxisAlignment: CrossAxisAlignment.center,
-                children: [
-                  AutoSizeText('data_title_2', textAlign: TextAlign.right),
-                  AutoSizeText(
-                    'data',
-                    textAlign: TextAlign.left,
-                    style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
-                  ),
-                ],
+                    ),
+                  ],
+                ),
               )
-            ),
-          ],
-        ),
+          ),
+          const Expanded(
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.center,
+              // crossAxisAlignment: CrossAxisAlignment.center,
+              children: [
+                AutoSizeText('data_title_2', textAlign: TextAlign.right),
+                AutoSizeText(
+                  'data',
+                  textAlign: TextAlign.left,
+                  style: TextStyle(color: Colors.red, fontWeight: FontWeight.bold),
+                ),
+              ],
+            )
+          ),
+        ],
       ),
     );
   }
 }
 
-class DropItem_ListView extends StatelessWidget {
+
+class DropItem_Title extends StatelessWidget {
+  const DropItem_Title({super.key});
+
+  @override
+  Widget build(BuildContext context) {
+    return Container(height: 30, child: AutoSizeText('test'),);
+  }
+}
+
+
+
+class DropItem_ListView extends StatefulWidget {
   final List<DropItem_List_decodeMap> convert_dropItemList;
   const DropItem_ListView({super.key, required this.convert_dropItemList});
 
   @override
+  State<DropItem_ListView> createState() => _DropItem_ListViewState();
+}
+
+class _DropItem_ListViewState extends State<DropItem_ListView> {
+  late List<DropItem_List_decodeMap> _convert_dropItemList = [];
+
+  @override
+  void initState() {
+    // TODO: implement initState
+    super.initState();
+    _convert_dropItemList.clear();
+    _convert_dropItemList = widget.convert_dropItemList;
+
+  }
+
+  @override
   Widget build(BuildContext context) {
     return Column(
-        children: _getDropItem()
+      children: [
+        // DropItem_Title(),
+        Column(
+            children: _getDropItem()
+        ),
+      ],
     );
   }
 
   List<Widget> _getDropItem(){
     List<Widget> dropItemWidgetList = [];
-    convert_dropItemList.forEach((element) {
+    _convert_dropItemList.forEach((element) {
       dropItemWidgetList.add(
           Container(
+            height: 100,
+            color: Colors.white,
             child: Row(
               children: [
-                Container(
-                  child: Placeholder(),
+                Expanded(
+                  flex: 1,
+                  child: Checkbox(value: false,onChanged: (value) {
+
+                  },)
                 ),
-                Column(
-                  children: [
-                    AutoSizeText('${element.complexName}'),
-                    AutoSizeText('${element.detailAddress}'),
-                    AutoSizeText('${element.complexType}'),
-                    Row(
-                      children: [
-                        AutoSizeText('${element.boxType}'),
-                        AutoSizeText('${element.deliveryFee}'),
-                      ],
-                    ),
-                    AutoSizeText('${element.tagInfo}')
-                  ],
+                Expanded(
+                  flex: 9,
+                  child: Column(
+                    children: [
+                      AutoSizeText('${element.complexName}', minFontSize: 1, style: TextStyle(fontSize: 5),),
+                      AutoSizeText('${element.detailAddress}', minFontSize: 1,style: TextStyle(fontSize: 5),),
+                      AutoSizeText('${element.complexType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
+                      Row(
+                        children: [
+                          AutoSizeText('${element.boxType}', minFontSize: 1,style: TextStyle(fontSize: 5),),
+                          AutoSizeText('${element.deliveryFee}', minFontSize: 1,style: TextStyle(fontSize: 5),),
+                        ],
+                      ),
+                      AutoSizeText('${element.tagInfo}', minFontSize: 1,style: TextStyle(fontSize: 5),)
+                    ],
+                  ),
                 )
               ],
             ),
@@ -249,4 +324,7 @@ class DropItem_ListView extends StatelessWidget {
     });
     return dropItemWidgetList;
   }
+
+
+
 }

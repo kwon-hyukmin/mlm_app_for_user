@@ -146,6 +146,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     return Container(
       child: NaverMap(
         options: naverMapViewOptions,
+
         onMapReady: (controller) async {                // 지도 준비 완료 시 호출되는 콜백 함수
           mapControllerCompleter.complete(controller);  // Completer에 지도 컨트롤러 완료 신호 전송
           log("onMapReady", name: "onMapReady");
@@ -159,17 +160,35 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             controller.addOverlay(element);
             element.setOnTapListener((overlay) {
               parent?.setState(() {
-                if (parent.container_height == 50){parent.container_height = 250;}
+                if (parent.container_height == 50){parent.container_height = 130;}
                 else {parent.container_height = 50;}
 
                 if (parent.dropItemList_visible == false){parent.dropItemList_visible = true;}
                 else {parent.dropItemList_visible = false;}
 
-                parent.dropItem_ListMap = DropItemList_TestData().dropItem_List('1');
+                if (parent.dropItemListTitle_visible == false){parent.dropItemListTitle_visible = true;}
+                else {parent.dropItemListTitle_visible = false;}
+
+                if (parent.dropItemTitle_visible == false){parent.dropItemTitle_visible = true;}
+                else {parent.dropItemTitle_visible = false;}
+                parent.dropItem_TestData.clear();
+                parent.convert_dropItem_ListMap.clear();
+                parent.dropItem_TestData = DropItemList_TestData().dropItem_List('1');
               });
             },);
           });
         },
+        // onMapTapped: (point, latLng) {
+        //   parent?.setState(() {
+        //
+        //     parent.container_height == 50;
+        //     parent.dropItemTitle_visible == false;
+        //     parent.dropItemListTitle_visible == false;
+        //     parent.dropItemList_visible = false;
+        //     parent.dropItem_TestData.clear();
+        //     parent.convert_dropItem_ListMap.clear();
+        //   });
+        // }
       ),
     );
   }
