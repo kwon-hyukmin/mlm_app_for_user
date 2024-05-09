@@ -1,15 +1,10 @@
 
-import 'dart:async';
-import 'dart:ffi';
 
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:geolocator/geolocator.dart';
-import 'package:get/get.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/screens/userPickup.dart';
 
@@ -17,55 +12,69 @@ import '../data/testData.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
-  Map<String, double> locationMap ={'Initial_latitude' : 37.494299, 'Initial_longitude' : 126.780446};
+  Map<String, double> locationMap = await Location().getCurrentLocation();
+  Map<String, double> m_locationMap = await M_Location().getCurrentLocation();
   // Map<String, double> locationMap = await Location().getCurrentLocation();
 
-  runApp(MaterialApp(
-    home: Scaffold(
-      appBar: AppBar(
-        backgroundColor: Color(0xFF3366CC),
-        title: const Text(
-          'Micro Last Mile Title',
-          style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
+  runApp(Myapp(i_locationMap: locationMap, m_locationMap: m_locationMap,)
+
+  );
+}
+
+class Myapp extends StatelessWidget {
+  final Map<String, double> i_locationMap;
+  final Map<String, double> m_locationMap;
+  const Myapp({super.key, required this.i_locationMap, required this.m_locationMap});
+
+  @override
+  Widget build(BuildContext context) {
+  Map<String, double> locationMap ={'Initial_latitude' : 37.494299, 'Initial_longitude' : 126.780446};
+    return MaterialApp(
+      home: Scaffold(
+        appBar: AppBar(
+          backgroundColor: Color(0xFF3366CC),
+          title: const Text(
+            'Micro Last Mile Title',
+            style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
-      body: Search_MapView(
-        initialLocation: locationMap,
-        markerLocation:
+        body: Search_MapView(
+          initialLocation: locationMap,
+          markerLocation:
           [
             {'drop_latitude' : 37.495109,
-             'drop_longitude' : 126.779065,
-             'drop_count' : 5
+              'drop_longitude' : 126.779065,
+              'drop_count' : 5
             },
             {'drop_latitude' : 37.495066,
-             'drop_longitude' : 126.781136,
-             'drop_count' : 3
+              'drop_longitude' : 126.781136,
+              'drop_count' : 3
             },
             {'drop_latitude' : 37.493699,
-             'drop_longitude' : 126.780847,
-             'drop_count' : 5
+              'drop_longitude' : 126.780847,
+              'drop_count' : 5
             },
           ],
-      ),
-      bottomNavigationBar: BottomNavigationBar(
-        type: BottomNavigationBarType.fixed,
-        selectedItemColor: Color(0xFF3366CC),
-        currentIndex: 1,
-        items: const [
+        ),
+        bottomNavigationBar: BottomNavigationBar(
+          type: BottomNavigationBarType.fixed,
+          selectedItemColor: Color(0xFF3366CC),
+          currentIndex: 1,
+          items: const [
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: 'Home'),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.map), label: '지도뷰'),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.square_arrow_up_on_square), label: '픽업'),
             BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: '배송'),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: '마이페이지'),
           ],
-          onTap: (value) {
-            print(value);
-          },
-        ),
-      ),
-    )
-  );
+          onTap: (value) {}
+                ),
+                )
+              );
+            }
+
 }
+
 
 
 class Search_MapView extends StatefulWidget {
@@ -154,7 +163,6 @@ class Search_MapViewState extends State<Search_MapView> {
         Visibility(visible: dropItemList_visible,
             child: Column(
               children: [
-                // Container(color: Colors.red, height: 10, ),
                 Expanded(child: DropItem_ListView(convert_dropItemList: convert_dropItem_ListMap)),
               ],
             ),
@@ -231,12 +239,14 @@ class DropItem_Header extends StatefulWidget {
   const DropItem_Header({super.key, required this.parent_ListView_length});
 
   @override
-  State<DropItem_Header> createState() => _DropItem_HeaderState();
+  State<DropItem_Header> createState() => DropItem_HeaderState();
 }
 
-class _DropItem_HeaderState extends State<DropItem_Header> {
+class DropItem_HeaderState extends State<DropItem_Header> {
   late bool _allCheckboxValue;
   late int _parent_ListView_length;
+  int _checkCount=0;
+  int _covert_checkCount=0;
 
   @override
   void initState() {
@@ -245,15 +255,33 @@ class _DropItem_HeaderState extends State<DropItem_Header> {
 
     _allCheckboxValue = false;
     _parent_ListView_length = widget.parent_ListView_length;
+    // _checkCount = 0;
   }
 
   @override
   Widget build(BuildContext context) {
+
     DropItem_ListViewState? parent = context.findAncestorStateOfType<DropItem_ListViewState>();
+    Search_MapViewState? mainParent = context.findAncestorStateOfType<Search_MapViewState>();
+
+    _checkCount = 0;
+    for (int i = 0; i < _parent_ListView_length; i++) {
+      if (parent?._checkboxValue_List[i] == true){
+        _checkCount++;
+      }
+    }
+
+    if (_checkCount == 0){
+        _covert_checkCount = 0;
+    } else { _covert_checkCount = _checkCount;}
+
+    if(_parent_ListView_length == _covert_checkCount){
+      _allCheckboxValue = true;
+    } else {_allCheckboxValue = false;}
 
     return Container(
       width: double.infinity,
-      height: 40,
+      height: 50,
       decoration: BoxDecoration(
         color: Colors.white,
         border: Border.symmetric(horizontal: BorderSide(color: Colors.grey, width: 0.5))
@@ -265,26 +293,52 @@ class _DropItem_HeaderState extends State<DropItem_Header> {
             child: Checkbox(
               value: _allCheckboxValue,
               onChanged: (value) {
-                setState(() {
-                  _allCheckboxValue = value!;
-                });
                 parent?.setState(() {
                   _parent_ListView_length = parent._checkboxValue_List.length;
+
                   for (int i = 0; i < _parent_ListView_length; i++) {
                     parent._checkboxValue_List[i] = value!;
                   }
+                });
+                setState(() {
+                  _allCheckboxValue = value!;
                 });
               },)),
           Expanded(
             flex: 8,
             child: Row(
               children: [
-                AutoSizeText('총', minFontSize: 1, style: TextStyle(fontSize: 14),),
-                AutoSizeText('${_parent_ListView_length + 1}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red),),
-                AutoSizeText('개의 배송이 있습니다.', minFontSize: 1, style: TextStyle(fontSize: 14),),
-                AutoSizeText('[', minFontSize: 1, style: TextStyle(fontSize: 12),),
-                AutoSizeText('1', minFontSize: 1, style: TextStyle(fontSize: 12, color: Colors.red),),
-                AutoSizeText('건 선택]', minFontSize: 1, style: TextStyle(fontSize: 12),),
+                Expanded(
+                  flex: 7,
+                  child: Row(
+                    children: [
+                      AutoSizeText('총', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                      AutoSizeText('${_parent_ListView_length}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),),
+                      AutoSizeText('개의 배송이 있습니다.', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                    ],
+                  )
+                ),
+                Expanded(flex: 3, child: Row(
+                  mainAxisAlignment: MainAxisAlignment.center,
+                  crossAxisAlignment: CrossAxisAlignment.center,
+                  children: [
+                    AutoSizeText('[', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                    AutoSizeText('${_covert_checkCount}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red),),
+                    AutoSizeText('건 선택]', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                    ],
+                  ),
+                ),
+                Expanded(
+                  flex: 2,
+                  child: IconButton(
+                    icon: Icon(CupertinoIcons.chevron_down_square,),
+                    onPressed: () {
+                      mainParent?.setState(() {
+                        mainParent.dropItemList_visible = false;
+                      });
+                    },
+                  )
+                )
               ],
             )),
         ],
@@ -306,6 +360,7 @@ class DropItem_ListView extends StatefulWidget {
 class DropItem_ListViewState extends State<DropItem_ListView> {
   late List<DropItem_List_decodeMap> _convert_dropItemList = [];
   late List<bool> _checkboxValue_List = [];
+  int _checkCount = 0;
 
   @override
   void initState() {
@@ -313,19 +368,28 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
     super.initState();
     _convert_dropItemList.clear();
     _convert_dropItemList = widget.convert_dropItemList;
+
     _convert_dropItemList.forEach((element) {
       _checkboxValue_List.add(false);
     });
+
+    for (int i = 0; i < _checkboxValue_List.length; i++) {
+      if(_checkboxValue_List[i] == true){
+        _checkCount++;
+      }
+    }
+
   }
 
   @override
   Widget build(BuildContext context) {
+    DropItem_HeaderState? child = context.findAncestorStateOfType<DropItem_HeaderState>();
+
     return DraggableScrollableSheet(
         minChildSize: 0.2,
         initialChildSize: 0.4,
         maxChildSize: 0.7,
         expand: false,
-        // builder: (context, scrollController) {
         builder: (context, scrollController) =>
           Column(
             mainAxisSize: MainAxisSize.min,
@@ -344,6 +408,8 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
                             Expanded(flex: 2, child: Checkbox(value: _checkboxValue_List[index], onChanged: (value) {
                               setState(() {
                                 _checkboxValue_List[index] = value!;
+                                DropItem_HeaderState()._allCheckboxValue = false;
+                                print(DropItem_HeaderState()._allCheckboxValue = false);
                               });
                             },)),
                             Expanded(
