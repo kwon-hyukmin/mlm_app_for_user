@@ -6,6 +6,8 @@ import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mlm_app_for_user/data/testData.dart';
 import 'package:mlm_app_for_user/screens/search_mapView.dart';
@@ -25,7 +27,7 @@ class NaverMapMlmApp_Initialize{
 //네이버맵 몸통
 class NaverMapMlmApp extends StatefulWidget {
   final Map<String, double>? represent_marker_LocationMap;
-  final List<Map<String, double>>? marker_LocationListMap;
+  final List<Map<String, dynamic>>? marker_LocationListMap;
   final Map<String, double> initial_LocationMap;
   final bool use_Gestures_yn;
   final double? zoom_level;
@@ -47,9 +49,10 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late double _zoom_level;
   late Map<String, double> _initial_LocationMap = Map();
   late Map<String, double> _represent_marker_LocationMap = Map();
-  late List<Map<String, double>>? _marker_LocationListMap;
+  late List<Map<String, dynamic>>? _marker_LocationListMap;
   List<Marker_decodeMap> _marker_decodeMap = [];
   late NOverlayImage nOverlayImage1;
+  NaverMapController? navermapController;
 
   @override
   void initState() {
@@ -105,12 +108,10 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
 
 
-
-
     _marker_decodeMap.forEach((element) async {
       listNmarker.add(
       NMarker(
-        id: 'marker_${element.drop_latitude}_${element.drop_longitude}',
+        id: '${element.drop_pointid}',
         position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0),
         alpha: 0.7,
         size: Size(40, 40),
@@ -143,17 +144,18 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
       );
     });
 
+
+
     return Container(
       child: NaverMap(
         options: naverMapViewOptions,
 
         onMapReady: (controller) async {                // 지도 준비 완료 시 호출되는 콜백 함수
-          mapControllerCompleter.complete(controller);  // Completer에 지도 컨트롤러 완료 신호 전송
+          navermapController = controller;                        // controller 할당
           log("onMapReady", name: "onMapReady");
-
+          // await controller.getCameraPosition();
           // 대표마커
           controller.addOverlay(marker);
-
           // Drop Point에 수량 찍어주는 마커
           // controller.addOverlayAll(listNmarker.toSet());
           listNmarker.forEach((element) {
@@ -164,22 +166,37 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
                 parent.inArea_DropSummary_visible = true;
                 parent.dropItem_TestData.clear();
                 parent.convert_dropItem_ListMap.clear();
-                parent.dropItem_TestData = DropItemList_TestData().dropItem_List('1');
+                parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
               });
             },);
           });
         },
-        // onMapTapped: (point, latLng) {
-        //   parent?.setState(() {
-        //
-        //     parent.container_height == 50;
-        //     parent.dropItemTitle_visible == false;
-        //     parent.dropItemListTitle_visible == false;
-        //     parent.dropItemList_visible = false;
-        //     parent.dropItem_TestData.clear();
-        //     parent.convert_dropItem_ListMap.clear();
-        //   });
-        // }
+        onMapTapped: (point, latLng) {
+          parent?.setState(() {
+            parent.dropItemList_visible = false;
+            parent.inArea_DropSummary_visible = true;
+            parent.dropItem_TestData.clear();
+            parent.convert_dropItem_ListMap.clear();
+            // parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
+          });
+        },
+        onCameraIdle: () async {
+          print('naverMapController2 : ${navermapController}');
+          print('getContentBounds2: ${ await navermapController?.getContentBounds(withPadding: false)}');
+          await navermapController?.clearOverlays();
+          listNmarker.forEach((element) {
+            navermapController?.addOverlay(element);
+            element.setOnTapListener((overlay) {
+              parent?.setState(() {
+                parent.dropItemList_visible = true;
+                parent.inArea_DropSummary_visible = true;
+                parent.dropItem_TestData.clear();
+                parent.convert_dropItem_ListMap.clear();
+                parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
+              });
+            },);
+          });
+        },
       ),
     );
   }
@@ -271,22 +288,25 @@ class M_Location {
 
 
 class Marker_decodeMap {
+  String? drop_pointid;
   double? drop_latitude;
   double? drop_longitude;
-  double? drop_count;
+  int? drop_count;
   // String? detailAddress;
   // String? boxType;
   // int? deliveryFee;
   // int? pickupState;
 
-  Marker_decodeMap(drop_latitude, drop_longitude, drop_count){
+  Marker_decodeMap(drop_pointid, drop_latitude, drop_longitude, drop_count){
+    this.drop_pointid = drop_pointid;
     this.drop_latitude = drop_latitude;
     this.drop_longitude = drop_longitude;
     this.drop_count = drop_count;
   }
 
-  Marker_decodeMap.fromJson(Map<String, double> json)
-      : drop_latitude = json['drop_latitude'],
+  Marker_decodeMap.fromJson(Map<String, dynamic> json)
+      : drop_pointid = json['drop_pointid'],
+        drop_latitude = json['drop_latitude'],
         drop_longitude = json['drop_longitude'],
         drop_count = json['drop_count'];
 }

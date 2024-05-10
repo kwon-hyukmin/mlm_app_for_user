@@ -34,27 +34,27 @@ class Myapp extends StatelessWidget {
         appBar: AppBar(
           backgroundColor: Color(0xFF3366CC),
           title: const Text(
-            'Micro Last Mile Title',
+            'Naver Map Test Page',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
           ),
         ),
         body: Search_MapView(
           initialLocation: locationMap,
-          markerLocation:
-          [
-            {'drop_latitude' : 37.495109,
-              'drop_longitude' : 126.779065,
-              'drop_count' : 5
-            },
-            {'drop_latitude' : 37.495066,
-              'drop_longitude' : 126.781136,
-              'drop_count' : 3
-            },
-            {'drop_latitude' : 37.493699,
-              'drop_longitude' : 126.780847,
-              'drop_count' : 5
-            },
-          ],
+          markerLocation: DropItem_TestData().dropPoint_List(),
+          // [
+          //   {'drop_latitude' : 37.495109,
+          //     'drop_longitude' : 126.779065,
+          //     'drop_count' : 5
+          //   },
+          //   {'drop_latitude' : 37.495066,
+          //     'drop_longitude' : 126.781136,
+          //     'drop_count' : 3
+          //   },
+          //   {'drop_latitude' : 37.493699,
+          //     'drop_longitude' : 126.780847,
+          //     'drop_count' : 5
+          //   },
+          // ],
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
@@ -79,7 +79,7 @@ class Myapp extends StatelessWidget {
 
 class Search_MapView extends StatefulWidget {
   final Map<String, double>? initialLocation;
-  final List<Map<String, double>>? markerLocation;
+  final List<Map<String, dynamic>>? markerLocation;
 
   const Search_MapView({super.key, this.initialLocation, this.markerLocation});
 
@@ -89,7 +89,7 @@ class Search_MapView extends StatefulWidget {
 
 class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
-  late List<Map<String, double>>? _markerLocation;
+  late List<Map<String, dynamic>>? _markerLocation;
   bool dropItemList_visible = false;
   bool inArea_DropSummary_visible = true;
   late List<Map<String, dynamic>> dropItem_TestData = [];
