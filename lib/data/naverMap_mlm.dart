@@ -53,20 +53,15 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   List<Marker_decodeMap> _marker_decodeMap = [];
   late NOverlayImage nOverlayImage1;
   NaverMapController? navermapController;
+  NLatLngBounds? camerePositionArea;
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
 
-    _marker_LocationListMap = widget.marker_LocationListMap;
-    _marker_LocationListMap?.forEach((element) {
-      _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
-    });
 
 
-    print('_marker_LocationMap');
-    print(_represent_marker_LocationMap);
     _initial_LocationMap.addAll(widget.initial_LocationMap) ;
     _represent_marker_LocationMap.addAll(widget.represent_marker_LocationMap ?? <String, double>{}) ;
     Initial_latitude = _initial_LocationMap['Initial_latitude'] ?? 0;
@@ -74,10 +69,6 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     marker_latitude = _represent_marker_LocationMap['marker_latitude'] ?? 0;
     marker_longitude = _represent_marker_LocationMap['marker_longitude'] ?? 0;
     _zoom_level = widget.zoom_level ?? 14;
-    print('marker_latitude');
-    print(marker_latitude);
-    print('marker_longitude');
-    print(marker_latitude);
     naverMapViewOptions = NaverMapViewOptions(
       initialCameraPosition: NCameraPosition(
         target: NLatLng(Initial_latitude, Initial_longitude), zoom: _zoom_level, bearing: 0, tilt: 0
@@ -100,11 +91,17 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
 
   @override
   Widget build(BuildContext context) {
+    _marker_LocationListMap = widget.marker_LocationListMap;
+    _marker_LocationListMap?.forEach((element) {
+      _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
+    });
+    print('_marker_LocationListMap : $_marker_LocationListMap');
+
     // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
     final Completer<NaverMapController> mapControllerCompleter = Completer();
-    // final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
+    final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
     List<NMarker> listNmarker = [];
-    final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
+    // final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
     Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
 
 
@@ -154,6 +151,9 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           navermapController = controller;                        // controller 할당
           log("onMapReady", name: "onMapReady");
           // await controller.getCameraPosition();
+          camerePositionArea = await navermapController?.getContentBounds(withPadding: false);  // 현재 보고있는 지도 영역 변수에 할당
+          parent?.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
+
           // 대표마커
           controller.addOverlay(marker);
           // Drop Point에 수량 찍어주는 마커
@@ -164,9 +164,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
               parent?.setState(() {
                 parent.dropItemList_visible = true;
                 parent.inArea_DropSummary_visible = true;
-                parent.dropItem_TestData.clear();
                 parent.convert_dropItem_ListMap.clear();
-                parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
               });
             },);
           });
@@ -175,24 +173,22 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           parent?.setState(() {
             parent.dropItemList_visible = false;
             parent.inArea_DropSummary_visible = true;
-            parent.dropItem_TestData.clear();
             parent.convert_dropItem_ListMap.clear();
             // parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
           });
         },
         onCameraIdle: () async {
-          print('naverMapController2 : ${navermapController}');
-          print('getContentBounds2: ${ await navermapController?.getContentBounds(withPadding: false)}');
           await navermapController?.clearOverlays();
+          camerePositionArea = await navermapController?.getContentBounds(withPadding: false);  // 현재 보고있는 지도 영역 변수에 할당
+          parent?.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
+
           listNmarker.forEach((element) {
             navermapController?.addOverlay(element);
             element.setOnTapListener((overlay) {
               parent?.setState(() {
                 parent.dropItemList_visible = true;
                 parent.inArea_DropSummary_visible = true;
-                parent.dropItem_TestData.clear();
                 parent.convert_dropItem_ListMap.clear();
-                parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
               });
             },);
           });

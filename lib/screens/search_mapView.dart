@@ -5,6 +5,7 @@ import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/rendering.dart';
 import 'package:flutter/widgets.dart';
+import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/screens/userPickup.dart';
 
@@ -28,6 +29,7 @@ class Myapp extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
+
   Map<String, double> locationMap ={'Initial_latitude' : 37.494299, 'Initial_longitude' : 126.780446};
     return MaterialApp(
       home: Scaffold(
@@ -40,7 +42,7 @@ class Myapp extends StatelessWidget {
         ),
         body: Search_MapView(
           initialLocation: locationMap,
-          markerLocation: DropItem_TestData().dropPoint_List(),
+          // markerLocation: DropItem_TestData().dropPoint_List(get_camerePositionArea?.southEast.latitude ?? 0, 37.49655220728531, 126.77854364337668, 126.78229115434823),
           // [
           //   {'drop_latitude' : 37.495109,
           //     'drop_longitude' : 126.779065,
@@ -79,9 +81,9 @@ class Myapp extends StatelessWidget {
 
 class Search_MapView extends StatefulWidget {
   final Map<String, double>? initialLocation;
-  final List<Map<String, dynamic>>? markerLocation;
 
-  const Search_MapView({super.key, this.initialLocation, this.markerLocation});
+
+  const Search_MapView({super.key, this.initialLocation});
 
   @override
   State<Search_MapView> createState() => Search_MapViewState();
@@ -89,13 +91,13 @@ class Search_MapView extends StatefulWidget {
 
 class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
-  late List<Map<String, dynamic>>? _markerLocation;
+  List<Map<String, dynamic>> _markerLocation = [];
   bool dropItemList_visible = false;
   bool inArea_DropSummary_visible = true;
-  late List<Map<String, dynamic>> dropItem_TestData = [];
   List<DropItem_List_decodeMap> convert_dropItem_ListMap = [];
+  NLatLngBounds? get_camerePositionArea;
   // late NOverlayImage nOverlayImage;
-
+  // final List<Map<String, dynamic>>? markerLocation;
 
   @override
   void initState() {
@@ -103,23 +105,21 @@ class Search_MapViewState extends State<Search_MapView> {
     super.initState();
 
     _initialLocation = widget.initialLocation!;
-    _markerLocation = widget.markerLocation;
+
     // visible = true;
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    // TODO: implement setState
-    super.setState(fn);
-
-    dropItem_TestData.forEach((element) {
-      convert_dropItem_ListMap.add(DropItem_List_decodeMap.fromJson(element));
-    });
   }
 
 
   @override
   Widget build(BuildContext context) {
+    _markerLocation =
+        DropItem_TestData().dropPoint_List(
+            get_camerePositionArea?.southEast.latitude ?? 0,
+            get_camerePositionArea?.northEast.latitude ?? 0,
+            get_camerePositionArea?.southEast.longitude ?? 0,
+            get_camerePositionArea?.northEast.longitude ?? 0,
+        );
+
     return Stack(
       children: [
         Column(

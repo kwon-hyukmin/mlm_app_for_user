@@ -1,13 +1,16 @@
+import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
+
 class DropItem_TestData{
   List<Map<String, dynamic>>? dropPointList_testData;
   List<Map<String, dynamic>>? dropPointList_testData_1;
   List<Map<String, dynamic>>? dropPointList_testData_2;
   List<Map<String, dynamic>>? dropPointList_testData_3;
-  List<Map<String, dynamic>>? final_dropPointList_testData;
+  List<Map<String, dynamic>> final_dropPointList_testData = [];
   List<Map<String, dynamic>>? dropItemList_testData;
+  List<Marker_decodeMap> _marker_decodeMap = [];
 
   dropPoint_List(double fr_drop_latitude, double to_drop_latitude, double fr_drop_longitude, double to_drop_longitude){
-    dropPointList_testData_1 =
+    dropPointList_testData =
       [
         { 'drop_pointid': '1',
           'drop_latitude': 37.495109,
@@ -43,53 +46,59 @@ class DropItem_TestData{
         'drop_longitude': 126.780847,
         'drop_count': 5
       },
-    ];
-
-    dropPointList_testData_2 =
-    [
       { 'drop_pointid': '4',
-        'drop_latitude': 37.497005,
-        'drop_longitude': 126.779065,
+        'drop_latitude': 37.496445,
+        'drop_longitude': 126.780062,
         'drop_count': 5
       },
       { 'drop_pointid': '5',
-        'drop_latitude': 37.495066,
-        'drop_longitude': 126.781136,
+        'drop_latitude': 37.497279,
+        'drop_longitude': 126.779875,
         'drop_count': 3
       },
       { 'drop_pointid': '6',
-        'drop_latitude': 37.493699,
-        'drop_longitude': 126.780847,
+        'drop_latitude': 37.499339,
+        'drop_longitude': 126.780122,
         'drop_count': 5
       },
-    ];
-
-    dropPointList_testData_3 =
-    [
       { 'drop_pointid': '7',
-        'drop_latitude': 37.495109,
-        'drop_longitude': 126.779065,
+        'drop_latitude': 37.500447,
+        'drop_longitude': 126.779218,
         'drop_count': 5
       },
       { 'drop_pointid': '8',
-        'drop_latitude': 37.495066,
-        'drop_longitude': 126.781136,
+        'drop_latitude': 37.501183,
+        'drop_longitude': 126.778432,
         'drop_count': 3
       },
       { 'drop_pointid': '9',
-        'drop_latitude': 37.493699,
-        'drop_longitude': 126.780847,
+        'drop_latitude': 37.502140,
+        'drop_longitude': 126.780111,
         'drop_count': 5
       },
     ];
 
-    if(fr_drop_latitude >= 37.49210276650818 && to_drop_latitude <= 37.4964951689097 && fr_drop_longitude >= 126.77834314811918 && to_drop_longitude <= 126.78254885187994 )
-    {final_dropPointList_testData = dropPointList_testData_1;};
-    if(fr_drop_latitude >= 37.495219448036124 && to_drop_latitude <= 37.49961166713631 && fr_drop_longitude >= 126.77807177302543 && to_drop_longitude <= 126.78227747678619 )
-    {final_dropPointList_testData = dropPointList_testData_2;};
-    if(fr_drop_latitude >= 37.499323127898705 && to_drop_latitude <= 37.503715105629496 && fr_drop_longitude >= 126.77660052957248 && to_drop_longitude <= 126.78254885187994 )
-    {final_dropPointList_testData = dropPointList_testData_3;};
+    dropPointList_testData_1?.forEach((element) {
+      _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
+    });
 
+
+    _marker_decodeMap.forEach((element) {
+      if(element.drop_latitude! >= fr_drop_latitude && element.drop_latitude! <= to_drop_latitude){
+        if(element.drop_longitude! <= fr_drop_longitude && element.drop_longitude! <= to_drop_longitude){
+          final_dropPointList_testData.add(
+              { 'drop_pointid': element.drop_pointid,
+                'drop_latitude': element.drop_latitude,
+                'drop_longitude': element.drop_longitude,
+                'drop_count': element.drop_count
+              }
+          );
+        }
+      }
+
+    });
+
+    // return dropPointList_testData;
     return final_dropPointList_testData;
   }
 
