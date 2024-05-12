@@ -103,22 +103,25 @@ class Search_MapViewState extends State<Search_MapView> {
   void initState() {
     // TODO: implement initState
     super.initState();
-
     _initialLocation = widget.initialLocation!;
 
     // visible = true;
   }
 
+  List<Map<String, dynamic>> getMarkerLocation(){
+    _markerLocation.clear();
+    _markerLocation =
+        DropItem_TestData().dropPoint_List(
+          get_camerePositionArea?.southEast.latitude ?? 0,
+          get_camerePositionArea?.northEast.latitude ?? 0,
+          get_camerePositionArea?.southEast.longitude ?? 0,
+          get_camerePositionArea?.northEast.longitude ?? 0,
+        );
+    return _markerLocation;
+  }
 
   @override
   Widget build(BuildContext context) {
-    _markerLocation =
-        DropItem_TestData().dropPoint_List(
-            get_camerePositionArea?.southEast.latitude ?? 0,
-            get_camerePositionArea?.northEast.latitude ?? 0,
-            get_camerePositionArea?.southEast.longitude ?? 0,
-            get_camerePositionArea?.northEast.longitude ?? 0,
-        );
 
     return Stack(
       children: [
@@ -145,7 +148,7 @@ class Search_MapViewState extends State<Search_MapView> {
           ),
           Expanded(
             flex: 8,
-            child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: _markerLocation, use_Gestures_yn: true, zoom_level: 16)
+            child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: getMarkerLocation(), use_Gestures_yn: true, zoom_level: 16)
           ),
         ],
       ),
@@ -409,7 +412,6 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
                               setState(() {
                                 _checkboxValue_List[index] = value!;
                                 DropItem_HeaderState()._allCheckboxValue = false;
-                                print(DropItem_HeaderState()._allCheckboxValue = false);
                               });
                             },)),
                             Expanded(

@@ -49,19 +49,17 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late double _zoom_level;
   late Map<String, double> _initial_LocationMap = Map();
   late Map<String, double> _represent_marker_LocationMap = Map();
-  late List<Map<String, dynamic>>? _marker_LocationListMap;
+  List<Map<String, dynamic>>? _marker_LocationListMap = [];
   List<Marker_decodeMap> _marker_decodeMap = [];
   late NOverlayImage nOverlayImage1;
   NaverMapController? navermapController;
   NLatLngBounds? camerePositionArea;
+  List<NMarker> listNmarker = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
-
-
-
     _initial_LocationMap.addAll(widget.initial_LocationMap) ;
     _represent_marker_LocationMap.addAll(widget.represent_marker_LocationMap ?? <String, double>{}) ;
     Initial_latitude = _initial_LocationMap['Initial_latitude'] ?? 0;
@@ -84,91 +82,64 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
       consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
       logoClickEnable: false
     );
-
-
-
   }
 
-  @override
-  Widget build(BuildContext context) {
+  void createDropMarker(){
+    // 변수 재초기화 처리
+    _marker_LocationListMap?.clear();
+    _marker_decodeMap.clear();
+    listNmarker.clear();
+
+    // 리스트맵 디코딩
     _marker_LocationListMap = widget.marker_LocationListMap;
     _marker_LocationListMap?.forEach((element) {
       _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
     });
-    print('_marker_LocationListMap : $_marker_LocationListMap');
-
-    // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
-    final Completer<NaverMapController> mapControllerCompleter = Completer();
-    final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
-    List<NMarker> listNmarker = [];
-    // final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
-    Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
 
 
+    //드랍포인트 리스트 마커 생성
     _marker_decodeMap.forEach((element) async {
       listNmarker.add(
-      NMarker(
-        id: '${element.drop_pointid}',
-        position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0),
-        alpha: 0.7,
-        size: Size(40, 40),
-        icon: NOverlayImage.fromAssetImage('assets/icons/${element.drop_count}.png'),
-        // 위젯으로 아이콘 만드는 부분
-           // 문제점 : 리스타트 할때 동일 이미지명으로 저장이 안되어서 지우고 다시 만드는 방법으로 수정해야 할 듯하며,
-           //         공통으로 빼서 호출해서 써야 하는데.. 컨텍스트를 줄 수 있을 지 봐야 함
-        // icon: await NOverlayImage.fromWidget(
-        //   widget: Container(
-        //     decoration: BoxDecoration(
-        //       color: Color(0xFF64ACF8),
-        //       borderRadius: BorderRadius.circular(50),
-        //       border: Border.all(color: Color(0xFF3A7DCE))
-        //     ),
-        //     height: 30,
-        //     width: 30,
-        //     child: Center(
-        //       child: AutoSizeText(
-        //         '${element.drop_count}',
-        //         minFontSize: 1,
-        //         maxFontSize: 100,
-        //         style: TextStyle(fontSize: 8),
-        //         textAlign: TextAlign.center,
-        //         ),
-        //     ),
-        //     ),
-        //   size: Size(20, 20),
-        //   context: context)
-        )
+          NMarker(
+            id: '${element.drop_pointid}',
+            position: NLatLng(element.drop_latitude ?? 0, element.drop_longitude ?? 0),
+            alpha: 0.7,
+            size: Size(40, 40),
+            icon: NOverlayImage.fromAssetImage('assets/icons/${element.drop_count}.png'),
+          )
       );
     });
+      print('listNmarker_add : $listNmarker');
+  }
 
-
+  @override
+  Widget build(BuildContext context) {
+    // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
+    final Completer<NaverMapController> mapControllerCompleter = Completer();
+    // final marker = NMarker(id: 'marker_1',position: NLatLng(marker_latitude, marker_longitude), size: Size(20, 25));
+    final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
+    // 부모클래스 State 상속 처리
+    Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
+    //드랍포인트 리스트 마커 생성
+    print('call test : createDropMarker');
+    createDropMarker();
 
     return Container(
       child: NaverMap(
         options: naverMapViewOptions,
 
+        // Event1 : 지도 준비 완료 시
         onMapReady: (controller) async {                // 지도 준비 완료 시 호출되는 콜백 함수
           navermapController = controller;                        // controller 할당
           log("onMapReady", name: "onMapReady");
           // await controller.getCameraPosition();
           camerePositionArea = await navermapController?.getContentBounds(withPadding: false);  // 현재 보고있는 지도 영역 변수에 할당
           parent?.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
-
           // 대표마커
           controller.addOverlay(marker);
-          // Drop Point에 수량 찍어주는 마커
-          // controller.addOverlayAll(listNmarker.toSet());
-          listNmarker.forEach((element) {
-            controller.addOverlay(element);
-            element.setOnTapListener((overlay) {
-              parent?.setState(() {
-                parent.dropItemList_visible = true;
-                parent.inArea_DropSummary_visible = true;
-                parent.convert_dropItem_ListMap.clear();
-              });
-            },);
-          });
         },
+
+        // Event2 : 지도 아무데나 찍었을때
         onMapTapped: (point, latLng) {
           parent?.setState(() {
             parent.dropItemList_visible = false;
@@ -177,21 +148,32 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             // parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
           });
         },
-        onCameraIdle: () async {
-          await navermapController?.clearOverlays();
-          camerePositionArea = await navermapController?.getContentBounds(withPadding: false);  // 현재 보고있는 지도 영역 변수에 할당
-          parent?.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
 
-          listNmarker.forEach((element) {
-            navermapController?.addOverlay(element);
-            element.setOnTapListener((overlay) {
-              parent?.setState(() {
-                parent.dropItemList_visible = true;
-                parent.inArea_DropSummary_visible = true;
-                parent.convert_dropItem_ListMap.clear();
-              });
-            },);
+        // Event3 : 지도 이동이 끝났을때
+        onCameraIdle: () async {
+          log("onCameraIdle", name: "onCameraIdle");
+
+          // 지도에 있는 모든 오버레이 삭제
+          navermapController?.clearOverlays();
+          // 현재 보고있는 지도 영역 변수에 할당
+          camerePositionArea = await navermapController?.getContentBounds(withPadding: false);
+          // 부모클레스 setState
+            createDropMarker();
+          parent?.setState(() {
+            parent.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
+            print('listNmarker test : $listNmarker');
+            listNmarker.forEach((element) {
+              navermapController?.addOverlay(element);
+              element.setOnTapListener((overlay) {
+                parent.setState(() {
+                  parent.dropItemList_visible = true;
+                  parent.inArea_DropSummary_visible = true;
+                  parent.convert_dropItem_ListMap.clear();
+                });
+              },);
+            });
           });
+
         },
       ),
     );
@@ -208,7 +190,6 @@ class Location {
 
   Future<Map<String, double>> getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
-    // print(permission);
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
@@ -217,8 +198,6 @@ class Location {
           desiredAccuracy: LocationAccuracy.high);
       latitude = position.latitude;
       longitude = position.longitude;
-      // print(latitude);
-      // print(longitude);
       location.putIfAbsent('Initial_latitude', () => latitude);
       location.putIfAbsent('Initial_longitude', () => longitude);
 
@@ -257,7 +236,6 @@ class M_Location {
 
   Future<Map<String, double>> getCurrentLocation() async {
     LocationPermission permission = await Geolocator.checkPermission();
-    // print(permission);
     if (permission == LocationPermission.denied) {
       permission = await Geolocator.requestPermission();
     }
@@ -266,16 +244,12 @@ class M_Location {
           desiredAccuracy: LocationAccuracy.high);
       m_latitude = position.latitude;
       m_longitude = position.longitude;
-      // print(latitude);
-      // print(longitude);
       m_location.putIfAbsent('marker_latitude', () => m_latitude);
       m_location.putIfAbsent('marker_longitude', () => m_longitude);
 
     } catch (e) {
       print(e);
     }
-    // print('m_location');
-    // print(m_location);
 
 
     return m_location;
