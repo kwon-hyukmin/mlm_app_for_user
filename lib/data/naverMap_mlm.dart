@@ -1,12 +1,9 @@
 import 'dart:async';
 import 'dart:developer';
 
-import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/animation.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
 import 'package:mlm_app_for_user/data/getDropMarker.dart';
@@ -144,9 +141,10 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
         // Event2 : 지도 아무데나 찍었을때
         onMapTapped: (point, latLng) {
           parent?.setState(() {
-            parent.dropItemList_visible = false;
-            parent.inArea_DropSummary_visible = true;
-            parent.convert_dropItem_ListMap.clear();
+            parent.dropItemListVisible = false;
+            parent.intForecastIncome = 0;
+            parent.inAreaDropSummaryVisible = true;
+            parent.convertDropItemListMap.clear();
             // parent.dropItem_TestData = DropItem_TestData().dropItem_List();
           });
         },
@@ -171,10 +169,10 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             element.setOnTapListener((overlay) {
               // 부모클레스 setState(스크롤 팝업 스위치, 리스트 데이터 생성 부분)
               parent?.setState(() {
-                parent.convert_dropItem_ListMap.clear();
+                parent.convertDropItemListMap.clear();
                 parent.dropItemListMapData = DropItem_TestData().dropItem_List(element.info.id);
-                parent.dropItemList_visible = true;
-                parent.inArea_DropSummary_visible = true;
+                parent.dropItemListVisible = true;
+                parent.inAreaDropSummaryVisible = true;
               });
             },);
           });

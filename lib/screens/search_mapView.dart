@@ -8,23 +8,23 @@ import 'package:flutter/widgets.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/screens/userPickup.dart';
-
+import 'package:intl/intl.dart';
 import '../data/testData.dart';
 
 void main() async {
   await NaverMapMlmApp_Initialize().initialize();
   Map<String, double> locationMap = await Location().getCurrentLocation();
-  Map<String, double> m_locationMap = await M_Location().getCurrentLocation();
+  Map<String, double> rMarkerLocationMap = await M_Location().getCurrentLocation();
 
-  runApp(Myapp(i_locationMap: locationMap, m_locationMap: m_locationMap,)
+  runApp(Myapp(iLocationMap: locationMap, mLocationMap: rMarkerLocationMap,)
 
   );
 }
 
 class Myapp extends StatelessWidget {
-  final Map<String, double> i_locationMap;
-  final Map<String, double> m_locationMap;
-  const Myapp({super.key, required this.i_locationMap, required this.m_locationMap});
+  final Map<String, double> iLocationMap;
+  final Map<String, double> mLocationMap;
+  const Myapp({super.key, required this.iLocationMap, required this.mLocationMap});
 
   @override
   Widget build(BuildContext context) {
@@ -33,7 +33,7 @@ class Myapp extends StatelessWidget {
     return MaterialApp(
       home: Scaffold(
         appBar: AppBar(
-          backgroundColor: Color(0xFF3366CC),
+          backgroundColor: const Color(0xFF3366CC),
           title: const Text(
             'Naver Map Test Page',
             style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),
@@ -44,7 +44,7 @@ class Myapp extends StatelessWidget {
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
-          selectedItemColor: Color(0xFF3366CC),
+          selectedItemColor: const Color(0xFF3366CC),
           currentIndex: 1,
           items: const [
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.home), label: 'Home'),
@@ -74,11 +74,14 @@ class Search_MapView extends StatefulWidget {
 }
 
 class Search_MapViewState extends State<Search_MapView> {
-  late Map<String, double> _initialLocation = Map();
-  bool dropItemList_visible = false;
-  bool inArea_DropSummary_visible = true;
+  late Map<String, double> _initialLocation = {};
+  bool dropItemListVisible = false;
+  bool inAreaDropSummaryVisible = true;
   late List<Map<String, dynamic>> dropItemListMapData = [];
-  List<DropItem_List_decodeMap> convert_dropItem_ListMap = [];
+  List<DropItem_List_decodeMap> convertDropItemListMap = [];
+  int intForecastIncome= 0;
+  String stringTransForecastIncome = '0';
+  var f = NumberFormat('###,###,###,###');
 
   @override
   void initState() {
@@ -95,13 +98,17 @@ class Search_MapViewState extends State<Search_MapView> {
     super.setState(fn);
 
     dropItemListMapData.forEach((element) {
-      convert_dropItem_ListMap.add(DropItem_List_decodeMap.fromJson(element));
+      convertDropItemListMap.add(DropItem_List_decodeMap.fromJson(element));
     });
+
+
   }
 
 
   @override
   Widget build(BuildContext context) {
+
+    stringTransForecastIncome = f.format(intForecastIncome);
 
     return Stack(
       children: [
@@ -111,15 +118,20 @@ class Search_MapViewState extends State<Search_MapView> {
             flex: 2,
             child: Row(
               children: [
-                Expanded(flex: 7, child: Placeholder()),
+                const Expanded(flex: 7, child: Placeholder()),
                 Expanded(
                   flex: 3,
                   child: Column(
                     children: [
-                      Expanded(child: SizedBox()),
-                      Expanded(child: AutoSizeText('TEST', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 16, color: CupertinoColors.activeBlue),)),
-                      Expanded(child: Placeholder()),
-                      Expanded(child: SizedBox())
+                      const Expanded(child: SizedBox()),
+                      const Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 20, color: CupertinoColors.activeBlue),)),
+                      Expanded(child: Row(
+                        children: [
+                          Expanded(flex: 13, child: AutoSizeText(stringTransForecastIncome, minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.right, style: const TextStyle(fontSize: 20, color: CupertinoColors.destructiveRed),)),
+                          const Expanded(flex: 7, child: AutoSizeText('원', minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.left, style: TextStyle(fontSize: 28, color: CupertinoColors.destructiveRed),)),
+                        ],
+                      )),
+                      const Expanded(child: SizedBox())
                     ],
                   )
                 )
@@ -133,7 +145,7 @@ class Search_MapViewState extends State<Search_MapView> {
         ],
       ),
         Visibility(
-          visible: inArea_DropSummary_visible,
+          visible: inAreaDropSummaryVisible,
           child: Positioned(
             bottom: 0,
             left: 0,
@@ -143,10 +155,10 @@ class Search_MapViewState extends State<Search_MapView> {
             ),
           ),
         ),
-        Visibility(visible: dropItemList_visible,
+        Visibility(visible: dropItemListVisible,
             child: Column(
               children: [
-                Expanded(child: DropItem_ListView(convert_dropItemList: convert_dropItem_ListMap)),
+                Expanded(child: DropItem_ListView(convertDropItemList: convertDropItemListMap)),
               ],
             ),
         )
@@ -217,47 +229,38 @@ class InArea_DropSummaryState extends State<InArea_DropSummary> {
 
 
 class DropItem_Header extends StatefulWidget {
-  final int parent_ListView_length;
-  const DropItem_Header({super.key, required this.parent_ListView_length});
+  final int parentListViewLength;
+  const DropItem_Header({super.key, required this.parentListViewLength});
   @override
   State<DropItem_Header> createState() => DropItem_HeaderState();
 }
 
 class DropItem_HeaderState extends State<DropItem_Header> {
   late bool _allCheckboxValue;
-  late int _parent_ListView_length;
+  late int _parentListViewLength;
   int _checkCount=0;
-  int _covert_checkCount=0;
-
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-
-    // _allCheckboxValue = false;
-    // _parent_ListView_length = widget.parent_ListView_length;
-    // _checkCount = 0;
-  }
+  int _covertCheckCount=0;
 
   @override
   Widget build(BuildContext context) {
     _allCheckboxValue = false;
-    _parent_ListView_length = widget.parent_ListView_length;
+    _parentListViewLength = widget.parentListViewLength;
     DropItem_ListViewState? parent = context.findAncestorStateOfType<DropItem_ListViewState>();
     Search_MapViewState? mainParent = context.findAncestorStateOfType<Search_MapViewState>();
 
     _checkCount = 0;
-    for (int i = 0; i < _parent_ListView_length; i++) {
-      if (parent?.checkboxValue_List[i] == true){
+    for (int i = 0; i < _parentListViewLength; i++) {
+      if (parent?._convertDropItemList[i].selectYn == true){
         _checkCount++;
       }
     }
 
     if (_checkCount == 0){
-        _covert_checkCount = 0;
-    } else { _covert_checkCount = _checkCount;}
+        _covertCheckCount = 0;
+    } else { _covertCheckCount = _checkCount;}
 
-    if(_parent_ListView_length == _covert_checkCount){
+
+    if(_parentListViewLength == _covertCheckCount){
       _allCheckboxValue = true;
     } else {_allCheckboxValue = false;}
 
@@ -265,7 +268,7 @@ class DropItem_HeaderState extends State<DropItem_Header> {
     return Container(
       width: double.infinity,
       height: 50,
-      decoration: BoxDecoration(
+      decoration: const BoxDecoration(
         color: Colors.white,
         border: Border.symmetric(horizontal: BorderSide(color: Colors.grey, width: 0.5))
       ),
@@ -277,15 +280,23 @@ class DropItem_HeaderState extends State<DropItem_Header> {
               value: _allCheckboxValue,
               onChanged: (value) {
                 parent?.setState(() {
-                  _parent_ListView_length = parent.checkboxValue_List.length;
-
-                  for (int i = 0; i < _parent_ListView_length; i++) {
-                    parent.checkboxValue_List[i] = value!;
+                  _parentListViewLength = parent._convertDropItemList.length;
+                  for (int i = 0; i < _parentListViewLength; i++) {
+                    parent._convertDropItemList[i].selectYn = value!;
                   }
                 });
                 setState(() {
                   _allCheckboxValue = value!;
                 });
+                //
+                // mainParent?.setState(() {
+                //   for(int i = 0; i < _parentListViewLength; i++ ){
+                //     if(parent?._convertDropItemList[i].selectYn == true){
+                //       mainParent.intForecastIncome = mainParent.intForecastIncome + parent!._convertDropItemList[i].deliveryFee!;
+                //     }
+                //   }
+                // });
+
               },)),
           Expanded(
             flex: 8,
@@ -295,9 +306,9 @@ class DropItem_HeaderState extends State<DropItem_Header> {
                   flex: 7,
                   child: Row(
                     children: [
-                      AutoSizeText('총', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
-                      AutoSizeText('${_parent_ListView_length}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),),
-                      AutoSizeText('개의 배송이 있습니다.', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                      const AutoSizeText('총', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
+                      AutoSizeText('$_parentListViewLength', minFontSize: 1, style: const TextStyle(fontSize: 14, color: Colors.red, fontWeight: FontWeight.bold),),
+                      const AutoSizeText('개의 배송이 있습니다.', minFontSize: 1, style: TextStyle(fontSize: 14, fontWeight: FontWeight.bold),),
                     ],
                   )
                 ),
@@ -305,19 +316,20 @@ class DropItem_HeaderState extends State<DropItem_Header> {
                   mainAxisAlignment: MainAxisAlignment.center,
                   crossAxisAlignment: CrossAxisAlignment.center,
                   children: [
-                    AutoSizeText('[', minFontSize: 1, style: TextStyle(fontSize: 14),),
-                    AutoSizeText('${_covert_checkCount}', minFontSize: 1, style: TextStyle(fontSize: 14, color: Colors.red),),
-                    AutoSizeText('건 선택]', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                    const AutoSizeText('[', minFontSize: 1, style: TextStyle(fontSize: 14),),
+                    AutoSizeText('$_covertCheckCount', minFontSize: 1, style: const TextStyle(fontSize: 14, color: Colors.red),),
+                    const AutoSizeText('건 선택]', minFontSize: 1, style: TextStyle(fontSize: 14),),
                     ],
                   ),
                 ),
                 Expanded(
                   flex: 2,
                   child: IconButton(
-                    icon: Icon(CupertinoIcons.chevron_down_square,),
+                    icon: const Icon(CupertinoIcons.chevron_down_square,),
                     onPressed: () {
                       mainParent?.setState(() {
-                        mainParent.dropItemList_visible = false;
+                        mainParent.dropItemListVisible = false;
+                        mainParent.intForecastIncome = 0;
                       });
                     },
                   )
@@ -333,39 +345,37 @@ class DropItem_HeaderState extends State<DropItem_Header> {
 
 
 class DropItem_ListView extends StatefulWidget {
-  final List<DropItem_List_decodeMap> convert_dropItemList;
-  const DropItem_ListView({super.key, required this.convert_dropItemList});
+  final List<DropItem_List_decodeMap> convertDropItemList;
+  const DropItem_ListView({super.key, required this.convertDropItemList});
 
   @override
   State<DropItem_ListView> createState() => DropItem_ListViewState();
 }
 
 class DropItem_ListViewState extends State<DropItem_ListView> {
-  late List<DropItem_List_decodeMap> _convert_dropItemList = [];
-  late List<bool> checkboxValue_List = [];
+  late List<DropItem_List_decodeMap> _convertDropItemList = [];
+  // late List<bool> checkboxValueList = [];
   // int _checkCount = 0;
 
-  @override
-  void initState() {
-    // TODO: implement initState
-    super.initState();
-    _convert_dropItemList.clear();
-    _convert_dropItemList = widget.convert_dropItemList;
-
-
-    _convert_dropItemList.forEach((element) {
-      checkboxValue_List.add(false);
+  void getForecastIncome(BuildContext context){
+    Search_MapViewState? Parent = context.findAncestorStateOfType<Search_MapViewState>();
+    Parent?.setState(() {
+      Parent.intForecastIncome = 0;
+      for(int i = 0; i < _convertDropItemList.length; i++ ){
+        if(_convertDropItemList[i].selectYn == true){
+          Parent.intForecastIncome = Parent.intForecastIncome + _convertDropItemList[i].deliveryFee!;
+        }
+      }
     });
-    // for (int i = 0; i < _checkboxValue_List.length; i++) {
-    //   if(_checkboxValue_List[i] == true){
-    //     // _checkCount++;
-    //   }
-    // }
-
   }
 
   @override
   Widget build(BuildContext context) {
+
+    _convertDropItemList = [];
+    _convertDropItemList = widget.convertDropItemList;
+
+
     return DraggableScrollableSheet(
         minChildSize: 0.2,
         initialChildSize: 0.4,
@@ -375,49 +385,52 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
           Column(
             mainAxisSize: MainAxisSize.min,
             children: [
-              DropItem_Header(parent_ListView_length: _convert_dropItemList.length),
+              DropItem_Header(parentListViewLength: _convertDropItemList.length),
               Expanded(
-                child: ListView.separated(
-                    shrinkWrap: true,
-                    controller: scrollController,
-                    itemBuilder: (context, index) {
-                      return Container(
-                        height: 150,
-                        color: Colors.white,
-                        child: Row(
-                          children: [
-                            Expanded(flex: 2, child: Checkbox(value: checkboxValue_List[index], onChanged: (value) {
-                              setState(() {
-                                checkboxValue_List[index] = value!;
-                                DropItem_HeaderState()._allCheckboxValue = false;
-                              });
-                            },)),
-                            Expanded(
-                              flex: 8,
-                              child: Column(
-                                children: [
-                                    AutoSizeText('${_convert_dropItemList.elementAt(index).complexName}', minFontSize: 1, style: TextStyle(fontSize: 10),),
-                                    AutoSizeText('${_convert_dropItemList.elementAt(index).detailAddress}', minFontSize: 1,style: TextStyle(fontSize: 10),),
-                                    AutoSizeText('${_convert_dropItemList.elementAt(index).complexType}', minFontSize: 1,style: TextStyle(fontSize: 10),),
-                                    Row(
-                                      children: [
-                                        AutoSizeText('${_convert_dropItemList.elementAt(index).boxType}', minFontSize: 1,style: TextStyle(fontSize: 10),),
-                                        AutoSizeText('${_convert_dropItemList.elementAt(index).deliveryFee}', minFontSize: 1,style: TextStyle(fontSize: 10),),
-                                      ],
-                                    ),
-                                    AutoSizeText('${_convert_dropItemList.elementAt(index).tagInfo}', minFontSize: 1,style: TextStyle(fontSize: 10),)
-                                ],
+                child: Container(color: Colors.white,
+                  child: ListView.separated(
+                      shrinkWrap: true,
+                      controller: scrollController,
+                      itemBuilder: (context, index) {
+                        return Container(
+                          height: 150,
+                          color: Colors.white,
+                          child: Row(
+                            children: [
+                              Expanded(flex: 2, child: Checkbox(value: _convertDropItemList[index].selectYn ?? false/*checkboxValueList[index]*/, onChanged: (value) {
+                                setState(() {
+                                  _convertDropItemList[index].selectYn = value!;
+                                  // DropItem_HeaderState()._allCheckboxValue = false;
+                                });
+                                getForecastIncome(context);
+                              },)),
+                              Expanded(
+                                flex: 8,
+                                child: Column(
+                                  children: [
+                                      AutoSizeText('${_convertDropItemList.elementAt(index).complexName}', minFontSize: 1, style: const TextStyle(fontSize: 10),),
+                                      AutoSizeText('${_convertDropItemList.elementAt(index).detailAddress}', minFontSize: 1,style: const TextStyle(fontSize: 10),),
+                                      AutoSizeText('${_convertDropItemList.elementAt(index).complexType}', minFontSize: 1,style: const TextStyle(fontSize: 10),),
+                                      Row(
+                                        children: [
+                                          AutoSizeText('${_convertDropItemList.elementAt(index).boxType}', minFontSize: 1,style: const TextStyle(fontSize: 10),),
+                                          AutoSizeText('${_convertDropItemList.elementAt(index).deliveryFee}', minFontSize: 1,style: const TextStyle(fontSize: 10),),
+                                        ],
+                                      ),
+                                      AutoSizeText('${_convertDropItemList.elementAt(index).tagInfo}', minFontSize: 1,style: const TextStyle(fontSize: 10),)
+                                  ],
+                                ),
                               ),
-                            ),
-                          ],
-                        )
-                      );
-                    } ,
-                    separatorBuilder: (context, index) => Divider(
-                        height: 0.2,
-                        color: Colors.grey,
-                      ),
-                    itemCount: _convert_dropItemList.length
+                            ],
+                          )
+                        );
+                      } ,
+                      separatorBuilder: (context, index) => const Divider(
+                          height: 0.2,
+                          color: Colors.grey,
+                        ),
+                      itemCount: _convertDropItemList.length
+                  ),
                 ),
               ),
             ],
