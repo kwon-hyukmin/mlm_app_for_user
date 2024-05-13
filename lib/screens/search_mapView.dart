@@ -15,7 +15,6 @@ void main() async {
   await NaverMapMlmApp_Initialize().initialize();
   Map<String, double> locationMap = await Location().getCurrentLocation();
   Map<String, double> m_locationMap = await M_Location().getCurrentLocation();
-  // Map<String, double> locationMap = await Location().getCurrentLocation();
 
   runApp(Myapp(i_locationMap: locationMap, m_locationMap: m_locationMap,)
 
@@ -42,21 +41,6 @@ class Myapp extends StatelessWidget {
         ),
         body: Search_MapView(
           initialLocation: locationMap,
-          // markerLocation: DropItem_TestData().dropPoint_List(get_camerePositionArea?.southEast.latitude ?? 0, 37.49655220728531, 126.77854364337668, 126.78229115434823),
-          // [
-          //   {'drop_latitude' : 37.495109,
-          //     'drop_longitude' : 126.779065,
-          //     'drop_count' : 5
-          //   },
-          //   {'drop_latitude' : 37.495066,
-          //     'drop_longitude' : 126.781136,
-          //     'drop_count' : 3
-          //   },
-          //   {'drop_latitude' : 37.493699,
-          //     'drop_longitude' : 126.780847,
-          //     'drop_count' : 5
-          //   },
-          // ],
         ),
         bottomNavigationBar: BottomNavigationBar(
           type: BottomNavigationBarType.fixed,
@@ -91,13 +75,10 @@ class Search_MapView extends StatefulWidget {
 
 class Search_MapViewState extends State<Search_MapView> {
   late Map<String, double> _initialLocation = Map();
-  List<Map<String, dynamic>> _markerLocation = [];
   bool dropItemList_visible = false;
   bool inArea_DropSummary_visible = true;
+  late List<Map<String, dynamic>> dropItemListMapData = [];
   List<DropItem_List_decodeMap> convert_dropItem_ListMap = [];
-  NLatLngBounds? get_camerePositionArea;
-  // late NOverlayImage nOverlayImage;
-  // final List<Map<String, dynamic>>? markerLocation;
 
   @override
   void initState() {
@@ -108,17 +89,16 @@ class Search_MapViewState extends State<Search_MapView> {
     // visible = true;
   }
 
-  List<Map<String, dynamic>> getMarkerLocation(){
-    _markerLocation.clear();
-    _markerLocation =
-        DropItem_TestData().dropPoint_List(
-          get_camerePositionArea?.southEast.latitude ?? 0,
-          get_camerePositionArea?.northEast.latitude ?? 0,
-          get_camerePositionArea?.southEast.longitude ?? 0,
-          get_camerePositionArea?.northEast.longitude ?? 0,
-        );
-    return _markerLocation;
+  @override
+  void setState(VoidCallback fn) {
+    // TODO: implement setState
+    super.setState(fn);
+
+    dropItemListMapData.forEach((element) {
+      convert_dropItem_ListMap.add(DropItem_List_decodeMap.fromJson(element));
+    });
   }
+
 
   @override
   Widget build(BuildContext context) {
@@ -148,7 +128,7 @@ class Search_MapViewState extends State<Search_MapView> {
           ),
           Expanded(
             flex: 8,
-            child: NaverMapMlmApp(initial_LocationMap: _initialLocation, marker_LocationListMap: getMarkerLocation(), use_Gestures_yn: true, zoom_level: 16)
+            child: NaverMapMlmApp(initial_LocationMap: _initialLocation, use_Gestures_yn: true, zoom_level: 16)
           ),
         ],
       ),
@@ -177,7 +157,6 @@ class Search_MapViewState extends State<Search_MapView> {
 
 
 class InArea_DropSummary extends StatefulWidget {
-  // final double container_height;
   InArea_DropSummary({super.key});
 
   @override
@@ -240,7 +219,6 @@ class InArea_DropSummaryState extends State<InArea_DropSummary> {
 class DropItem_Header extends StatefulWidget {
   final int parent_ListView_length;
   const DropItem_Header({super.key, required this.parent_ListView_length});
-
   @override
   State<DropItem_Header> createState() => DropItem_HeaderState();
 }
@@ -256,20 +234,21 @@ class DropItem_HeaderState extends State<DropItem_Header> {
     // TODO: implement initState
     super.initState();
 
-    _allCheckboxValue = false;
-    _parent_ListView_length = widget.parent_ListView_length;
+    // _allCheckboxValue = false;
+    // _parent_ListView_length = widget.parent_ListView_length;
     // _checkCount = 0;
   }
 
   @override
   Widget build(BuildContext context) {
-
+    _allCheckboxValue = false;
+    _parent_ListView_length = widget.parent_ListView_length;
     DropItem_ListViewState? parent = context.findAncestorStateOfType<DropItem_ListViewState>();
     Search_MapViewState? mainParent = context.findAncestorStateOfType<Search_MapViewState>();
 
     _checkCount = 0;
     for (int i = 0; i < _parent_ListView_length; i++) {
-      if (parent?._checkboxValue_List[i] == true){
+      if (parent?.checkboxValue_List[i] == true){
         _checkCount++;
       }
     }
@@ -281,6 +260,7 @@ class DropItem_HeaderState extends State<DropItem_Header> {
     if(_parent_ListView_length == _covert_checkCount){
       _allCheckboxValue = true;
     } else {_allCheckboxValue = false;}
+
 
     return Container(
       width: double.infinity,
@@ -297,10 +277,10 @@ class DropItem_HeaderState extends State<DropItem_Header> {
               value: _allCheckboxValue,
               onChanged: (value) {
                 parent?.setState(() {
-                  _parent_ListView_length = parent._checkboxValue_List.length;
+                  _parent_ListView_length = parent.checkboxValue_List.length;
 
                   for (int i = 0; i < _parent_ListView_length; i++) {
-                    parent._checkboxValue_List[i] = value!;
+                    parent.checkboxValue_List[i] = value!;
                   }
                 });
                 setState(() {
@@ -362,8 +342,8 @@ class DropItem_ListView extends StatefulWidget {
 
 class DropItem_ListViewState extends State<DropItem_ListView> {
   late List<DropItem_List_decodeMap> _convert_dropItemList = [];
-  late List<bool> _checkboxValue_List = [];
-  int _checkCount = 0;
+  late List<bool> checkboxValue_List = [];
+  // int _checkCount = 0;
 
   @override
   void initState() {
@@ -372,22 +352,20 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
     _convert_dropItemList.clear();
     _convert_dropItemList = widget.convert_dropItemList;
 
-    _convert_dropItemList.forEach((element) {
-      _checkboxValue_List.add(false);
-    });
 
-    for (int i = 0; i < _checkboxValue_List.length; i++) {
-      if(_checkboxValue_List[i] == true){
-        _checkCount++;
-      }
-    }
+    _convert_dropItemList.forEach((element) {
+      checkboxValue_List.add(false);
+    });
+    // for (int i = 0; i < _checkboxValue_List.length; i++) {
+    //   if(_checkboxValue_List[i] == true){
+    //     // _checkCount++;
+    //   }
+    // }
 
   }
 
   @override
   Widget build(BuildContext context) {
-    DropItem_HeaderState? child = context.findAncestorStateOfType<DropItem_HeaderState>();
-
     return DraggableScrollableSheet(
         minChildSize: 0.2,
         initialChildSize: 0.4,
@@ -408,9 +386,9 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
                         color: Colors.white,
                         child: Row(
                           children: [
-                            Expanded(flex: 2, child: Checkbox(value: _checkboxValue_List[index], onChanged: (value) {
+                            Expanded(flex: 2, child: Checkbox(value: checkboxValue_List[index], onChanged: (value) {
                               setState(() {
-                                _checkboxValue_List[index] = value!;
+                                checkboxValue_List[index] = value!;
                                 DropItem_HeaderState()._allCheckboxValue = false;
                               });
                             },)),
