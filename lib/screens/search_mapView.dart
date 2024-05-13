@@ -82,32 +82,19 @@ class Search_MapViewState extends State<Search_MapView> {
   int intForecastIncome= 0;
   String stringTransForecastIncome = '0';
   var f = NumberFormat('###,###,###,###');
+  List<DropdownMenuItem> cityDropdownItem = [];
 
   @override
   void initState() {
     // TODO: implement initState
     super.initState();
     _initialLocation = widget.initialLocation!;
-
-    // visible = true;
-  }
-
-  @override
-  void setState(VoidCallback fn) {
-    // TODO: implement setState
-    super.setState(fn);
-
-    dropItemListMapData.forEach((element) {
-      convertDropItemListMap.add(DropItem_List_decodeMap.fromJson(element));
-    });
-
-
-  }
+    cityDropdownItem.add(DropdownMenuItem(child: Text('부천시'), value: '부천시'));
+    }
 
 
   @override
   Widget build(BuildContext context) {
-
     stringTransForecastIncome = f.format(intForecastIncome);
 
     return Stack(
@@ -115,19 +102,33 @@ class Search_MapViewState extends State<Search_MapView> {
         Column(
         children: [
           Expanded(
-            flex: 2,
+            flex: 3,
             child: Row(
               children: [
-                const Expanded(flex: 7, child: Placeholder()),
                 Expanded(
-                  flex: 3,
+                  flex: 13,
+                  child: Container(
+                    child: DropdownButton(
+                      items: cityDropdownItem,
+                      value: '부천시',
+                      onChanged: (value) {
+                        print('value : $value');
+                        setState(() {
+                        cityDropdownItem[0] = value;
+                        });
+                      },
+                    ),
+                  )
+                ),
+                Expanded(
+                  flex: 7,
                   child: Column(
                     children: [
                       const Expanded(child: SizedBox()),
-                      const Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 20, color: CupertinoColors.activeBlue),)),
+                      const Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 28, color: CupertinoColors.activeBlue),)),
                       Expanded(child: Row(
                         children: [
-                          Expanded(flex: 13, child: AutoSizeText(stringTransForecastIncome, minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.right, style: const TextStyle(fontSize: 20, color: CupertinoColors.destructiveRed),)),
+                          Expanded(flex: 13, child: AutoSizeText(stringTransForecastIncome, minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.right, style: const TextStyle(fontSize: 28, color: CupertinoColors.destructiveRed),)),
                           const Expanded(flex: 7, child: AutoSizeText('원', minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.left, style: TextStyle(fontSize: 28, color: CupertinoColors.destructiveRed),)),
                         ],
                       )),
@@ -139,7 +140,7 @@ class Search_MapViewState extends State<Search_MapView> {
             ),
           ),
           Expanded(
-            flex: 8,
+            flex: 17,
             child: NaverMapMlmApp(initial_LocationMap: _initialLocation, use_Gestures_yn: true, zoom_level: 16)
           ),
         ],
@@ -289,13 +290,14 @@ class DropItem_HeaderState extends State<DropItem_Header> {
                   _allCheckboxValue = value!;
                 });
                 //
-                // mainParent?.setState(() {
-                //   for(int i = 0; i < _parentListViewLength; i++ ){
-                //     if(parent?._convertDropItemList[i].selectYn == true){
-                //       mainParent.intForecastIncome = mainParent.intForecastIncome + parent!._convertDropItemList[i].deliveryFee!;
-                //     }
-                //   }
-                // });
+                mainParent?.setState(() {
+                  mainParent.intForecastIncome = 0;
+                  for(int i = 0; i < _parentListViewLength; i++ ){
+                    if(parent?._convertDropItemList[i].selectYn == true){
+                      mainParent.intForecastIncome = mainParent.intForecastIncome + parent!._convertDropItemList[i].deliveryFee!;
+                    } else {mainParent.intForecastIncome = 0;}
+                  }
+                });
 
               },)),
           Expanded(
@@ -369,12 +371,11 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
     });
   }
 
+
   @override
   Widget build(BuildContext context) {
-
     _convertDropItemList = [];
     _convertDropItemList = widget.convertDropItemList;
-
 
     return DraggableScrollableSheet(
         minChildSize: 0.2,

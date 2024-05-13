@@ -171,6 +171,9 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
               parent?.setState(() {
                 parent.convertDropItemListMap.clear();
                 parent.dropItemListMapData = DropItem_TestData().dropItem_List(element.info.id);
+                parent.dropItemListMapData.forEach((element) {
+                  parent.convertDropItemListMap.add(DropItem_List_decodeMap.fromJson(element));
+                });
                 parent.dropItemListVisible = true;
                 parent.inAreaDropSummaryVisible = true;
               });
