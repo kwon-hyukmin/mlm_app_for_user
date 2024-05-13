@@ -9,6 +9,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:geolocator/geolocator.dart';
+import 'package:mlm_app_for_user/data/getDropMarker.dart';
 import 'package:mlm_app_for_user/data/testData.dart';
 import 'package:mlm_app_for_user/screens/search_mapView.dart';
 
@@ -27,12 +28,11 @@ class NaverMapMlmApp_Initialize{
 //네이버맵 몸통
 class NaverMapMlmApp extends StatefulWidget {
   final Map<String, double>? represent_marker_LocationMap;
-  final List<Map<String, dynamic>>? marker_LocationListMap;
   final Map<String, double> initial_LocationMap;
   final bool use_Gestures_yn;
   final double? zoom_level;
 
-  NaverMapMlmApp({Key? key, this.represent_marker_LocationMap, required this.initial_LocationMap, required this.use_Gestures_yn, this.zoom_level, this.marker_LocationListMap});
+  NaverMapMlmApp({Key? key, this.represent_marker_LocationMap, required this.initial_LocationMap, required this.use_Gestures_yn, this.zoom_level/*, this.marker_LocationListMap*/});
 
 
 
@@ -55,6 +55,9 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   NaverMapController? navermapController;
   NLatLngBounds? camerePositionArea;
   List<NMarker> listNmarker = [];
+  late List<Map<String, dynamic>> NdropItem_TestData = [];
+  bool NdropItemList_visible = false;
+  bool NinArea_DropSummary_visible = true;
 
   @override
   void initState() {
@@ -91,7 +94,8 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     listNmarker.clear();
 
     // 리스트맵 디코딩
-    _marker_LocationListMap = widget.marker_LocationListMap;
+    _marker_LocationListMap = GetDropMarker().getMarkerLocation(camerePositionArea);
+    // _marker_LocationListMap = widget.marker_LocationListMap;
     _marker_LocationListMap?.forEach((element) {
       _marker_decodeMap.add(Marker_decodeMap.fromJson(element));
     });
@@ -109,8 +113,9 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           )
       );
     });
-      print('listNmarker_add : $listNmarker');
   }
+
+
 
   @override
   Widget build(BuildContext context) {
@@ -120,9 +125,8 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     final marker = NMarker(id: 'marker_1',position: NLatLng(37.494299, 126.780446), size: Size(20, 25));
     // 부모클래스 State 상속 처리
     Search_MapViewState? parent = context.findAncestorStateOfType<Search_MapViewState>();
-    //드랍포인트 리스트 마커 생성
-    print('call test : createDropMarker');
-    createDropMarker();
+    // DropItem_ListViewState? parent_child = context.findAncestorStateOfType<DropItem_ListViewState>();
+
 
     return Container(
       child: NaverMap(
@@ -132,9 +136,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
         onMapReady: (controller) async {                // 지도 준비 완료 시 호출되는 콜백 함수
           navermapController = controller;                        // controller 할당
           log("onMapReady", name: "onMapReady");
-          // await controller.getCameraPosition();
           camerePositionArea = await navermapController?.getContentBounds(withPadding: false);  // 현재 보고있는 지도 영역 변수에 할당
-          parent?.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
           // 대표마커
           controller.addOverlay(marker);
         },
@@ -145,7 +147,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             parent.dropItemList_visible = false;
             parent.inArea_DropSummary_visible = true;
             parent.convert_dropItem_ListMap.clear();
-            // parent.dropItem_TestData = DropItem_TestData().dropItem_List(element.info.id);
+            // parent.dropItem_TestData = DropItem_TestData().dropItem_List();
           });
         },
 
@@ -155,25 +157,27 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
 
           // 지도에 있는 모든 오버레이 삭제
           navermapController?.clearOverlays();
+          // 대표마커 재오버레이
+          navermapController?.addOverlay(marker);
           // 현재 보고있는 지도 영역 변수에 할당
           camerePositionArea = await navermapController?.getContentBounds(withPadding: false);
-          // 부모클레스 setState
-            createDropMarker();
-          parent?.setState(() {
-            parent.get_camerePositionArea = camerePositionArea; // 부모 클래스에 영역변수 전달
-            print('listNmarker test : $listNmarker');
-            listNmarker.forEach((element) {
-              navermapController?.addOverlay(element);
-              element.setOnTapListener((overlay) {
-                parent.setState(() {
-                  parent.dropItemList_visible = true;
-                  parent.inArea_DropSummary_visible = true;
-                  parent.convert_dropItem_ListMap.clear();
-                });
-              },);
-            });
+          // 마커생성
+          createDropMarker();
+          print('listNmarker : $listNmarker');
+          // 생성한 마커 지도에 오버레이 처리
+          listNmarker.forEach((element) {
+            navermapController?.addOverlay(element);
+            // 오베리이 된 마커에 이벤트 객체 생성
+            element.setOnTapListener((overlay) {
+              // 부모클레스 setState(스크롤 팝업 스위치, 리스트 데이터 생성 부분)
+              parent?.setState(() {
+                parent.convert_dropItem_ListMap.clear();
+                parent.dropItemListMapData = DropItem_TestData().dropItem_List(element.info.id);
+                parent.dropItemList_visible = true;
+                parent.inArea_DropSummary_visible = true;
+              });
+            },);
           });
-
         },
       ),
     );
@@ -211,22 +215,6 @@ class Location {
   }
 }
 
-//
-// class LocationListMap_toList {
-//   String? marker_latitude;
-//   String? marker_longitude;
-//
-//   LocationListMap_toList(marker_latitude, marker_longitude){
-//     this.marker_latitude = marker_latitude;
-//     this.marker_longitude = marker_longitude;
-//   }
-//
-//   LocationListMap_toList.fromJson(Map<String, dynamic> json)
-//       : marker_latitude = json['marker_latitude'],
-//         marker_longitude = json['marker_longitude'];
-// }
-
-
 
 class M_Location {
   double m_latitude = 0;
@@ -262,10 +250,6 @@ class Marker_decodeMap {
   double? drop_latitude;
   double? drop_longitude;
   int? drop_count;
-  // String? detailAddress;
-  // String? boxType;
-  // int? deliveryFee;
-  // int? pickupState;
 
   Marker_decodeMap(drop_pointid, drop_latitude, drop_longitude, drop_count){
     this.drop_pointid = drop_pointid;
