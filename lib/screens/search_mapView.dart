@@ -9,6 +9,7 @@ import 'package:flutter_naver_map/flutter_naver_map.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
 import 'package:mlm_app_for_user/screens/userPickup.dart';
 import 'package:intl/intl.dart';
+import '../data/naverMap_getAddress.dart';
 import '../data/testData.dart';
 
 void main() async {
@@ -53,7 +54,9 @@ class Myapp extends StatelessWidget {
             BottomNavigationBarItem(icon: Icon(Icons.delivery_dining), label: '배송'),
             BottomNavigationBarItem(icon: Icon(CupertinoIcons.person), label: '마이페이지'),
           ],
-          onTap: (value) {}
+          onTap: (value) {
+
+          }
                 ),
                 )
               );
@@ -83,6 +86,7 @@ class Search_MapViewState extends State<Search_MapView> {
   String stringTransForecastIncome = '0';
   var f = NumberFormat('###,###,###,###');
   List<DropdownMenuItem> cityDropdownItem = [];
+  Map<String, dynamic>? nowAreaName;
 
   @override
   void initState() {
@@ -103,40 +107,110 @@ class Search_MapViewState extends State<Search_MapView> {
         children: [
           Expanded(
             flex: 3,
-            child: Row(
-              children: [
-                Expanded(
-                  flex: 13,
-                  child: Container(
-                    child: DropdownButton(
-                      items: cityDropdownItem,
-                      value: '부천시',
-                      onChanged: (value) {
-                        print('value : $value');
-                        setState(() {
-                        cityDropdownItem[0] = value;
-                        });
-                      },
-                    ),
+            child: Container(
+              decoration: BoxDecoration(
+                border: BorderDirectional(bottom: BorderSide(color: Colors.grey, width: 0.5))
+              ),
+              child: Row(
+                children: [
+                  Expanded(
+                    flex: 13,
+                    child: Column(
+                      children: [
+                        Expanded(
+                          flex : 7,
+                          child: Row(
+                            mainAxisAlignment: MainAxisAlignment.center,
+                            crossAxisAlignment: CrossAxisAlignment.center,
+                            children: [
+                              AutoSizeText(
+                                nowAreaName?['area1'] ?? '',
+                                minFontSize: 1,
+                                maxFontSize: 100,
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54
+                                ),
+                              ),
+                            AutoSizeText(
+                              ' ',
+                              minFontSize: 1,
+                              maxFontSize: 100,
+                              style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                  color: Colors.black54
+                              ),
+                            ),
+                              AutoSizeText(
+                                nowAreaName?['area2'] ?? '',
+                                minFontSize: 1,
+                                maxFontSize: 100,
+                                style: TextStyle(
+                                  fontSize: 22,
+                                  fontWeight: FontWeight.bold,
+                                    color: Colors.black54
+                                ),
+                              ),
+                              AutoSizeText(
+                                ' ',
+                                minFontSize: 1,
+                                maxFontSize: 100,
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54
+                                ),
+                              ),
+                              AutoSizeText(
+                                  nowAreaName?['area3'] ?? '',
+                                minFontSize: 1,
+                                maxFontSize: 100,
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54
+                                ),
+                              ),
+                              AutoSizeText(
+                                  nowAreaName?['area4'] ?? '',
+                                minFontSize: 1,
+                                maxFontSize: 100,
+                                style: TextStyle(
+                                    fontSize: 22,
+                                    fontWeight: FontWeight.bold,
+                                    color: Colors.black54
+                                ),
+                              ),
+                            ],
+                          ),
+                        ),
+                      Expanded(
+                        flex : 3,
+                        child : Container()
+                        )
+                      ],
+                    )
+                  ),
+                  Expanded(
+                    flex: 7,
+                    child: Column(
+                      children: [
+                        const Expanded(child: SizedBox()),
+                        const Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 22, color: CupertinoColors.activeBlue),)),
+                        Expanded(child: Row(
+                          children: [
+                            Expanded(flex: 13, child: AutoSizeText(stringTransForecastIncome, minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.right, style: const TextStyle(fontSize: 22, color: CupertinoColors.destructiveRed),)),
+                            const Expanded(flex: 7, child: AutoSizeText('원', minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.left, style: TextStyle(fontSize: 22, color: CupertinoColors.destructiveRed),)),
+                          ],
+                        )),
+                        const Expanded(child: SizedBox())
+                      ],
+                    )
                   )
-                ),
-                Expanded(
-                  flex: 7,
-                  child: Column(
-                    children: [
-                      const Expanded(child: SizedBox()),
-                      const Expanded(child: AutoSizeText('예상수익', minFontSize: 1, maxFontSize: 100, style: TextStyle(fontSize: 28, color: CupertinoColors.activeBlue),)),
-                      Expanded(child: Row(
-                        children: [
-                          Expanded(flex: 13, child: AutoSizeText(stringTransForecastIncome, minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.right, style: const TextStyle(fontSize: 28, color: CupertinoColors.destructiveRed),)),
-                          const Expanded(flex: 7, child: AutoSizeText('원', minFontSize: 1, maxFontSize: 100, textAlign: TextAlign.left, style: TextStyle(fontSize: 28, color: CupertinoColors.destructiveRed),)),
-                        ],
-                      )),
-                      const Expanded(child: SizedBox())
-                    ],
-                  )
-                )
-              ],
+                ],
+              ),
             ),
           ),
           Expanded(

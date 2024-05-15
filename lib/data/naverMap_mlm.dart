@@ -10,6 +10,8 @@ import 'package:mlm_app_for_user/data/getDropMarker.dart';
 import 'package:mlm_app_for_user/data/testData.dart';
 import 'package:mlm_app_for_user/screens/search_mapView.dart';
 
+import 'naverMap_getAddress.dart';
+
 // 지도 초기화하기
 class NaverMapMlmApp_Initialize{
   Future<void> initialize() async {
@@ -55,6 +57,11 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   late List<Map<String, dynamic>> NdropItem_TestData = [];
   bool NdropItemList_visible = false;
   bool NinArea_DropSummary_visible = true;
+  NCameraPosition? nowCameraPosition;
+  double? nowLatitude;
+  double? nowLongitude;
+  String? nowPosition;
+  Map<String, dynamic>? getAreaName;
 
   @override
   void initState() {
@@ -113,7 +120,6 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
   }
 
 
-
   @override
   Widget build(BuildContext context) {
     // NaverMapController 객체의 비동기 작업 완료를 나타내는 Completer 생성
@@ -152,7 +158,14 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
         // Event3 : 지도 이동이 끝났을때
         onCameraIdle: () async {
           log("onCameraIdle", name: "onCameraIdle");
-
+          nowCameraPosition = navermapController?.nowCameraPosition;
+          nowLatitude = nowCameraPosition?.target.latitude;
+          nowLongitude = nowCameraPosition?.target.longitude;
+          nowPosition = nowLongitude!.toStringAsFixed(6) + ',' + nowLatitude!.toStringAsFixed(6);
+          getAreaName = await getAddress(nowPosition);
+          parent?.setState(() {
+            parent.nowAreaName = getAreaName;
+          });
           // 지도에 있는 모든 오버레이 삭제
           navermapController?.clearOverlays();
           // 대표마커 재오버레이
@@ -161,7 +174,6 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           camerePositionArea = await navermapController?.getContentBounds(withPadding: false);
           // 마커생성
           createDropMarker();
-          print('listNmarker : $listNmarker');
           // 생성한 마커 지도에 오버레이 처리
           listNmarker.forEach((element) {
             navermapController?.addOverlay(element);
