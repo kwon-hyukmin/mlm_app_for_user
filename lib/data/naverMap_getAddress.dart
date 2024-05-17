@@ -43,19 +43,19 @@ Future getAddress(position) async {
       area4 = mapRegion?['area4'];
 
       getAreaName =
-        {
-          'status' : 'ok',
-          'area1' : area1?['name'],
-          'area2' : area2?['name'],
-          'area3' : area3?['name'],
-          'area4' : area4?['name']
-        };
-      return getAreaName;
+      {
+        'status' : 'ok',
+        'area1' : area1?['name'],
+        'area2' : area2?['name'],
+        'area3' : area3?['name'],
+        'area4' : area4?['name']
+      };
     } else {
       // 요청 실패 처리
       debugPrint("Failed to load data: ${response.statusCode}");
       getAreaName = { 'status' : 'fail'};
     }
+      return getAreaName;
   }
 
   return fetchData();

@@ -75,19 +75,19 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
     marker_longitude = _represent_marker_LocationMap['marker_longitude'] ?? 0;
     _zoom_level = widget.zoom_level ?? 14;
     naverMapViewOptions = NaverMapViewOptions(
-      initialCameraPosition: NCameraPosition(
-        target: NLatLng(Initial_latitude, Initial_longitude), zoom: _zoom_level, bearing: 0, tilt: 0
+        initialCameraPosition: NCameraPosition(
+            target: NLatLng(Initial_latitude, Initial_longitude), zoom: _zoom_level, bearing: 0, tilt: 0
         ),
-      rotationGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
-      scrollGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
-      tiltGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
-      zoomGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
-      stopGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
-      locale: Locale('ko'),
-      indoorEnable: false, // 실내 맵 사용 가능 여부 설정
-      locationButtonEnable: true, // 위치 버튼 표시 여부 설정
-      consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
-      logoClickEnable: false
+        rotationGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
+        scrollGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
+        tiltGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
+        zoomGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
+        stopGesturesEnable: widget.use_Gestures_yn, //제스처 활성화여부
+        locale: Locale('ko'),
+        indoorEnable: false, // 실내 맵 사용 가능 여부 설정
+        locationButtonEnable: true, // 위치 버튼 표시 여부 설정
+        consumeSymbolTapEvents: false, // 심볼 탭 이벤트 소비 여부 설정
+        logoClickEnable: false
     );
   }
 
@@ -149,7 +149,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
           parent?.setState(() {
             parent.dropItemListVisible = false;
             parent.intForecastIncome = 0;
-            parent.inAreaDropSummaryVisible = true;
+            // parent.inAreaDropSummaryVisible = true;
             parent.convertDropItemListMap.clear();
             // parent.dropItem_TestData = DropItem_TestData().dropItem_List();
           });
@@ -179,7 +179,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             navermapController?.addOverlay(element);
             // 오베리이 된 마커에 이벤트 객체 생성
             element.setOnTapListener((overlay) {
-              // 부모클레스 setState(스크롤 팝업 스위치, 리스트 데이터 생성 부분)
+              // 부모클레스 setState(스크롤 팝업 스위치, 리스트 데이터 생성 부분)를 포함하고 있는 위젯을 오버레이
               parent?.setState(() {
                 parent.convertDropItemListMap.clear();
                 parent.dropItemListMapData = DropItem_TestData().dropItem_List(element.info.id);
@@ -187,7 +187,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
                   parent.convertDropItemListMap.add(DropItem_List_decodeMap.fromJson(element));
                 });
                 parent.dropItemListVisible = true;
-                parent.inAreaDropSummaryVisible = true;
+                // parent.inAreaDropSummaryVisible = true;
               });
             },);
           });
