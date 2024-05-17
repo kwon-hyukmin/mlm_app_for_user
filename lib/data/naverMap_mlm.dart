@@ -151,6 +151,7 @@ class _NaverMapMlmAppState extends State<NaverMapMlmApp> {
             parent.intForecastIncome = 0;
             // parent.inAreaDropSummaryVisible = true;
             parent.convertDropItemListMap.clear();
+            parent.selectedDropItemCount = 0;
             // parent.dropItem_TestData = DropItem_TestData().dropItem_List();
           });
         },

@@ -3,14 +3,8 @@
 import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
-import 'package:flutter/rendering.dart';
-import 'package:flutter/widgets.dart';
-import 'package:flutter_naver_map/flutter_naver_map.dart';
-import 'package:geolocator/geolocator.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
-import 'package:mlm_app_for_user/screens/userPickup.dart';
 import 'package:intl/intl.dart';
-import '../data/naverMap_getAddress.dart';
 import '../data/testData.dart';
 
 void main() async {
@@ -89,6 +83,7 @@ class Search_MapViewState extends State<Search_MapView> {
   Map<String, dynamic>? nowAreaName;
   String strNowAreaName1 = '';
   String strNowAreaName2 = '';
+  int selectedDropItemCount = 0;
 
   @override
   void initState() {
@@ -149,6 +144,7 @@ class Search_MapViewState extends State<Search_MapView> {
                                         minFontSize: 1,
                                         presetFontSizes: [20, 10],
                                         maxFontSize: 20,
+                                        overflow: TextOverflow.ellipsis,
                                         style: const TextStyle(
                                           color: Colors.black
                                           ),
@@ -197,10 +193,10 @@ class Search_MapViewState extends State<Search_MapView> {
               ],
             ),
           ),
-          const Positioned(
+          Positioned(
             bottom: 20,
             right: 20,
-            child: DeliveryReservationButton()
+            child: DeliveryReservationButton(selectedDropItemCount: selectedDropItemCount,)
           )
         ]
     );
@@ -311,6 +307,7 @@ class DropItem_HeaderState extends State<DropItem_Header> {
                             mainParent?.setState(() {
                               mainParent.dropItemListVisible = false;
                               mainParent.intForecastIncome = 0;
+                              mainParent.selectedDropItemCount = 0;
                             });
                           },
                         )
@@ -339,12 +336,17 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
   // int _checkCount = 0;
 
   void getForecastIncome(BuildContext context){
+    int selectedDropItemCount = 0;
     Search_MapViewState? Parent = context.findAncestorStateOfType<Search_MapViewState>();
     Parent?.setState(() {
+      selectedDropItemCount = 0;
       Parent.intForecastIncome = 0;
+      Parent.selectedDropItemCount = selectedDropItemCount;
       for(int i = 0; i < _convertDropItemList.length; i++ ){
         if(_convertDropItemList[i].selectYn == true){
+          selectedDropItemCount = selectedDropItemCount + 1;
           Parent.intForecastIncome = Parent.intForecastIncome + _convertDropItemList[i].deliveryFee!;
+          Parent.selectedDropItemCount = selectedDropItemCount;
         }
       }
     });
@@ -422,7 +424,8 @@ class DropItem_ListViewState extends State<DropItem_ListView> {
 
 
 class DeliveryReservationButton extends StatefulWidget {
-  const DeliveryReservationButton({super.key});
+  final int selectedDropItemCount;
+  const DeliveryReservationButton({super.key, required this.selectedDropItemCount});
 
   @override
   State<DeliveryReservationButton> createState() => _DeliveryReservationButtonState();
@@ -440,34 +443,54 @@ class _DeliveryReservationButtonState extends State<DeliveryReservationButton> {
 
   @override
   Widget build(BuildContext context) {
-
-    double screenSize = 0;
+    double screenHeightSize = 0;
     double locationHeightSnackBar = 0;
-    bool test = false;
 
     return InkWell(
       child: buttonIcon,
       onTapDown: (details) => setState(() {buttonIcon = DeliveryReservationButtonOnPress();}),
       onTapUp: (details) => setState(() {buttonIcon = DeliveryReservationButtonDefult();}),
+      onHighlightChanged: (value) => setState(() {buttonIcon = DeliveryReservationButtonDefult();}),
       onTap: () {
-        screenSize = MediaQuery.of(context).size.height;
-        locationHeightSnackBar = screenSize/2.5;
-        ScaffoldMessenger.of(context).showSnackBar(
-          SnackBar(
-            content: Text('Reservation Completde!!'), //snack bar의 내용. icon, button같은것도 가능하다.
-            duration: const Duration(seconds: 5), //올라와있는 시간
-            action: SnackBarAction( //추가로 작업을 넣기. 버튼넣기라 생각하면 편하다.
-              label: '닫기', //버튼이름
-              onPressed: (){}, //버튼 눌렀을때.
-            ),
-            behavior: SnackBarBehavior.floating,
-            // dismissDirection: DismissDirection.up,
-            margin: EdgeInsets.only(
-                bottom: MediaQuery.of(context).size.height - locationHeightSnackBar,
-                left: 10,
-                right: 10),
-          )
-        );
+        screenHeightSize = MediaQuery.of(context).size.height;
+        locationHeightSnackBar = screenHeightSize/2.5;
+
+        if (widget.selectedDropItemCount == 0){
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: const Text('선택 된 배송이 없습니다.'), //snack bar의 내용. icon, button같은것도 가능하다.
+                duration: const Duration(seconds: 2), //올라와있는 시간
+                action: SnackBarAction( //추가로 작업을 넣기. 버튼넣기라 생각하면 편하다.
+                  label: '닫기', //버튼이름
+                  onPressed: (){}, //버튼 눌렀을때.
+                ),
+                behavior: SnackBarBehavior.floating,
+                // dismissDirection: DismissDirection.up,
+                margin: EdgeInsets.only(
+                    bottom: screenHeightSize - locationHeightSnackBar,
+                    left: 10,
+                    right: 10),
+              )
+          );
+        }
+        if (widget.selectedDropItemCount > 0){
+          ScaffoldMessenger.of(context).showSnackBar(
+              SnackBar(
+                content: Text('[ ${widget.selectedDropItemCount} ] 건 픽업 예약이 완료 되었습니다.'), //snack bar의 내용. icon, button같은것도 가능하다.
+                duration: const Duration(seconds: 2), //올라와있는 시간
+                action: SnackBarAction( //추가로 작업을 넣기. 버튼넣기라 생각하면 편하다.
+                  label: '닫기', //버튼이름
+                  onPressed: (){}, //버튼 눌렀을때.
+                ),
+                behavior: SnackBarBehavior.floating,
+                // dismissDirection: DismissDirection.up,
+                margin: EdgeInsets.only(
+                    bottom: MediaQuery.of(context).size.height - locationHeightSnackBar,
+                    left: 10,
+                    right: 10),
+              )
+          );
+        }
       },
     );
   }
