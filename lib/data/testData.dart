@@ -279,6 +279,68 @@ class DropItem_TestData{
         }
       ];
     }
+
+    if (DropPoint_id == '4') {
+      dropItemList_testData = [{"complexName": "대원아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+    if (DropPoint_id == '5') {
+      dropItemList_testData = [{"complexName": "쌍용아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+    if (DropPoint_id == '6') {
+      dropItemList_testData = [{"complexName": "건영서안아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+    if (DropPoint_id == '7') {
+      dropItemList_testData = [{"complexName": "동아아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+    if (DropPoint_id == '8') {
+      dropItemList_testData = [{"complexName": "삼환한진아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+    if (DropPoint_id == '9') {
+      dropItemList_testData = [{"complexName": "삼환한진아파트",
+        "detailAddress": '101동',
+        "complexType": "아파트",
+        "boxType": "극소",
+        "deliveryFee": 300,
+        "tagInfo": ' #엘리베이터 2대, #소형단지'
+      }];
+    }
+
+
     return dropItemList_testData;
   }
 }
@@ -291,6 +353,7 @@ class DropItem_List_decodeMap {
   String? boxType;
   int? deliveryFee;
   String? tagInfo;
+  bool? selectYn;
 
 
   DropItem_List_decodeMap(complexName, detailAddress, complexType, boxType, deliveryFee, tagInfo){
@@ -300,6 +363,7 @@ class DropItem_List_decodeMap {
     this.boxType = boxType;
     this.deliveryFee = deliveryFee;
     this.tagInfo = tagInfo;
+    selectYn = false;
   }
 
   DropItem_List_decodeMap.fromJson(Map<String, dynamic> json)

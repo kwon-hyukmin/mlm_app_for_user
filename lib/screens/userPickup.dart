@@ -2,8 +2,11 @@ import 'package:auto_size_text/auto_size_text.dart';
 import 'package:flutter/cupertino.dart';
 import 'package:flutter/material.dart';
 import 'package:flutter/widgets.dart';
+import 'package:http/http.dart';
 import 'package:mlm_app_for_user/data/camefa_barcod_reader.dart';
+import 'package:mlm_app_for_user/data/model/user_pickup_model.dart';
 import 'package:mlm_app_for_user/data/naverMap_mlm.dart';
+import 'package:mlm_app_for_user/data/webRequest/temp_rest_service.dart';
 import 'package:mlm_app_for_user/icons/common_icon_container.dart';
 import 'package:mlm_app_for_user/screens/pickupPoint_naverMap.dart';
 import 'package:mlm_app_for_user/screens/pickupPoint_picture.dart';
@@ -12,71 +15,61 @@ void main() async {
   await NaverMapMlmApp_Initialize().initialize();
   Map<String, double> locationMap = await Location().getCurrentLocation();
   Map<String, double> m_locationMap = await M_Location().getCurrentLocation();
-  runApp(MyappUserPickup(m_locationMap: m_locationMap, locationMap: locationMap,)
-  );
-}
-
-class MyappUserPickup extends StatelessWidget {
-  final Map<String, double> locationMap;
-  final Map<String, double> m_locationMap;
-  const MyappUserPickup({super.key, required this.locationMap, required this.m_locationMap});
-
-  @override
-  Widget build(BuildContext context) {
-    return MaterialApp(
-      home: Scaffold(
-        appBar: AppBar(
-          backgroundColor: Color(0xFF3366CC),
-          title: const Text('Micro Last Mile Title', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
-        ),
-        body: UserPickUp(
-            pickPointAdd: '부평구 그랑힐스 아파트 204동',
-            initialLocation: locationMap,
-            markerLocation: m_locationMap,
-            pickupImgUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTA3MDhfMTkw%2FMDAxNjI1NzA4NTU4MDk5.VGnPEqOJ1Z8F51ZcH49uuCH7-Czk7Xdbqzy3SdWDTdsg.ajf5-CoEEYuKpKS-DvGIK_OCUosGgmwA7EDmopcD1d4g.JPEG.ykj4708%2FKakaoTalk_20210708_103656329_01.jpg&type=a340',
-            pickupInfomation: '지하1층 204동 출입구 앞 펜스 안쪽에서 픽업 바랍니다.',
-            pickupInfomationDetail: '주차구역번호 B1C4',
-            csNumber: '1588-9999',
-            totalCount: 23,
-            leftCount: 22,
-            pickupList: [{"invoiceNo" : "1111-****-***-1234",
-              "deliveryCoo" : 'CJ대한통은',
-              "address" : "e편한세상 부평그랑힐스",
-              "detailAddress" : '104동 101호',
-              "boxType" : "극소",
-              "deliveryFee" : 300,
-              "pickupState" : 0
-            },
-              {"invoiceNo" : "1111-****-***-1235",
-                "deliveryCoo" : 'CJ대한통은',
-                "address" : "Xi 그랜드써밋",
-                "detailAddress" : '101동 101호',
-                "boxType" : "극소",
-                "deliveryFee" : 500,
-                "pickupState" : 1
-              },
-              {"invoiceNo" : "1111-****-***-1236",
-                "deliveryCoo" : 'CJ대한통은',
-                "address" : "e편한세상 부평그랑힐스",
-                "detailAddress" : '101동 102호',
-                "boxType" : "극대",
-                "deliveryFee" : 100,
-                "pickupState" : 1
-              },
-              {"invoiceNo" : "1111-****-***-1237",
-                "deliveryCoo" : 'CJ대한통은',
-                "address" : "e편한세상 부평그랑힐스",
-                "detailAddress" : '101동 103호',
-                "boxType" : "극대",
-                "deliveryFee" : 400,
-                "pickupState" : 1
-              }]
-        ),
+  runApp(MaterialApp(
+    home: Scaffold(
+      appBar: AppBar(
+        backgroundColor: Color(0xFF3366CC),
+        title: const Text('Micro Last Mile Title', style: TextStyle(fontWeight: FontWeight.bold, color: Colors.white),),
       ),
-    );
-  }
+      body: UserPickUp(
+          pickPointAdd: '부평구 그랑힐스 아파트 204동',
+          initialLocation: locationMap,
+          markerLocation: m_locationMap,
+          pickupImgUrl: 'https://search.pstatic.net/common/?src=http%3A%2F%2Fblogfiles.naver.net%2FMjAyMTA3MDhfMTkw%2FMDAxNjI1NzA4NTU4MDk5.VGnPEqOJ1Z8F51ZcH49uuCH7-Czk7Xdbqzy3SdWDTdsg.ajf5-CoEEYuKpKS-DvGIK_OCUosGgmwA7EDmopcD1d4g.JPEG.ykj4708%2FKakaoTalk_20210708_103656329_01.jpg&type=a340',
+          pickupInfomation: '지하1층 204동 출입구 앞 펜스 안쪽에서 픽업 바랍니다.',
+          pickupInfomationDetail: '주차구역번호 B1C4',
+          csNumber: '1588-9999',
+          totalCount: 23,
+          leftCount: 22,
+          // pickupList: [
+            // {"invoiceNo" : "1111-****-***-1234",
+            //            "deliveryCoo" : 'CJ대한통은',
+            //            "address" : "e편한세상 부평그랑힐스",
+            //            "detailAddress" : '104동 101호',
+            //            "boxType" : "극소",
+            //            "deliveryFee" : 300,
+            //            "pickupState" : 0
+            //           },
+            //           {"invoiceNo" : "1111-****-***-1235",
+            //             "deliveryCoo" : 'CJ대한통은',
+            //             "address" : "Xi 그랜드써밋",
+            //             "detailAddress" : '101동 101호',
+            //             "boxType" : "극소",
+            //             "deliveryFee" : 500,
+            //             "pickupState" : 1
+            //           },
+            //           {"invoiceNo" : "1111-****-***-1236",
+            //             "deliveryCoo" : 'CJ대한통은',
+            //             "address" : "e편한세상 부평그랑힐스",
+            //             "detailAddress" : '101동 102호',
+            //             "boxType" : "극대",
+            //             "deliveryFee" : 100,
+            //             "pickupState" : 1
+            //           },
+            //           {"invoiceNo" : "1111-****-***-1237",
+            //             "deliveryCoo" : 'CJ대한통은',
+            //             "address" : "e편한세상 부평그랑힐스",
+            //             "detailAddress" : '101동 103호',
+            //             "boxType" : "극대",
+            //             "deliveryFee" : 400,
+            //             "pickupState" : 1
+            //           }
+            //           ]
+          userId : 'jjh103',
+      ),
+    ),
+  ));
 }
-
 
 
 class UserPickup_MapToList {
@@ -110,8 +103,8 @@ class UserPickup_MapToList {
 
 
 class PickUpListView extends StatelessWidget {
-  final List<UserPickup_MapToList> convert_pickupList;
-  const PickUpListView({super.key, required this.convert_pickupList});
+  final List<UserPickupModel> pickupList;
+  const PickUpListView({super.key, required this.pickupList});
 
   @override
   Widget build(BuildContext context) {
@@ -122,7 +115,7 @@ class PickUpListView extends StatelessWidget {
 
   List<Widget> _getInputs(){
     List<Widget> textWidgetList = [];
-    convert_pickupList.forEach((element) {
+    pickupList.forEach((element) {
       textWidgetList.add(
           Container(
             decoration: const BoxDecoration(
@@ -233,9 +226,10 @@ class UserPickUp extends StatefulWidget {
   final String csNumber;
   final int totalCount;
   final int leftCount;
-  final List<Map<String, dynamic>> pickupList;
+  // final List<Map<String, dynamic>> pickupList;
+  String userId;
 
-  const UserPickUp(
+  UserPickUp(
       {super.key,
       required this.pickPointAdd,
       required this.initialLocation,
@@ -246,7 +240,8 @@ class UserPickUp extends StatefulWidget {
       required this.csNumber,
       required this.totalCount,
       required this.leftCount,
-      required this.pickupList
+      // required this.pickupList
+      this.userId = '',
       });
 
   @override
@@ -257,9 +252,33 @@ class _UserPickUpState extends State<UserPickUp> {
   late int _leftCount;
   late Map<String, double> _initialLocation = Map();
   late Map<String, double>? _markerLocation = Map();
-  late List<Map<String, dynamic>> _pickupListMap;
-  List<UserPickup_MapToList> userPickup_MapToList = [];
+  late List<UserPickupModel> pickupList = <UserPickupModel>[];
+  late String _userId;
+  // late List<Map<String, dynamic>> _pickupListMap;
+  // List<UserPickup_MapToList> userPickup_MapToList = [];
   // late int _pickupState;
+
+  Future<void> fetchPickupData(String userId, List pickupList) async {
+
+    try {
+      dynamic response = await TempRestService.requestGet(
+        url: 'http://jjh103.iptime.org:8080/pickingList/',
+        params: userId
+      );
+
+      if (response != null) {
+        (response as List<dynamic>).forEach((element) {
+          final pickupModel = UserPickupModel.fromJson(element);
+          pickupList.add(pickupModel);
+        });
+      } else {
+        print('fetchPickupData 통신중 에러발생!@!@!@@!@!@!@!@');
+      }
+    } catch (e) {
+      print('$e');
+    }
+
+  }
 
   @override
   void initState() {
@@ -268,16 +287,25 @@ class _UserPickUpState extends State<UserPickUp> {
     _leftCount = widget.leftCount;
     _initialLocation = widget.initialLocation;
     _markerLocation = widget.markerLocation;
-    _pickupListMap = widget.pickupList;
-    _pickupListMap.forEach((element) {
-      userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
-    });
+    _userId = widget.userId;
+
+    fetchPickupData(_userId, pickupList);
+
+
+    // _pickupListMap = widget.pickupList;
+
+
+    // _pickupListMap.forEach((element) {
+    //   userPickup_MapToList.add(UserPickup_MapToList.fromJson(element));
+    // });
 
     // PickUpListView(_pickupListMap)._getInputs();
     // print(widget.pickupList[0]);
     // print(widget.pickupList[1]);
     // _pickupState = widget.pickupList[_element['pickupList']];
   }
+
+
 
 
   @override
@@ -376,7 +404,7 @@ class _UserPickUpState extends State<UserPickUp> {
                 ],
               ),
             ),
-            PickUpListView(convert_pickupList: userPickup_MapToList),
+            PickUpListView(pickupList: pickupList),
           ],
         ),
       ),
